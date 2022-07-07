@@ -3,11 +3,11 @@
 ## Source: https://github.com/hexojs/hexo/
 
 # Site
-title: Hexo
-subtitle: 'aaaa'
-description: 'bbbbb'
-keywords:
-author: smalfish
+title: Small fish
+subtitle: '已有知识，后比再有;已学知识，后必再学'
+description: '一个打工仔' 
+keywords: kernel schedule xorg mesa
+author: ysj
 language: zh-CN
 timezone: 'Asia/Shanghai'
 
