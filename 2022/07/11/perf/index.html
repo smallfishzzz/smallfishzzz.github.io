@@ -28,8 +28,9 @@
 <meta property="og:description" content="1 perf工具​	 Perf是Linux kernel自带的系统性能优化工具。Perf的优势在于与Linux Kernel的紧密结合，它可以最先应用到加入Kernel的new feature。perf可以统计硬件相关的信息如cpu cache miss、tlb miss、ips等等，软件上可以查看代码执行热点函数、热点指令、cpu迁移、等等，从而帮助开发者来优化程序性能。">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://smallfishzzz.github.io/2022/07/11/perf/perftop.png">
+<meta property="og:image" content="https://smallfishzzz.github.io/2022/07/11/perf/perftop-g.png">
 <meta property="article:published_time" content="2022-07-11T07:40:50.000Z">
-<meta property="article:modified_time" content="2022-07-12T05:45:24.609Z">
+<meta property="article:modified_time" content="2022-07-12T06:39:25.224Z">
 <meta property="article:author" content="ysj">
 <meta property="article:tag" content="linux内核">
 <meta property="article:tag" content="perf">
@@ -121,7 +122,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-perf%E5%B7%A5%E5%85%B7"><span class="nav-number">1.</span> <span class="nav-text">1 perf工具</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-%E8%8E%B7%E5%BE%97perf"><span class="nav-number">2.</span> <span class="nav-text">2 获得perf</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-%E5%B8%B8%E7%94%A8%E6%96%B9%E6%B3%95"><span class="nav-number">3.</span> <span class="nav-text">3 常用方法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#a-perf-stat"><span class="nav-number">3.1.</span> <span class="nav-text">a) perf stat</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#b-perf-top"><span class="nav-number">3.2.</span> <span class="nav-text">b) perf top</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#c-perf-record"><span class="nav-number">3.3.</span> <span class="nav-text">c) perf record</span></a></li></ol></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-perf%E5%B7%A5%E5%85%B7"><span class="nav-number">1.</span> <span class="nav-text">1 perf工具</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-%E8%8E%B7%E5%BE%97perf"><span class="nav-number">2.</span> <span class="nav-text">2 获得perf</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-%E5%B8%B8%E7%94%A8%E6%96%B9%E6%B3%95"><span class="nav-number">3.</span> <span class="nav-text">3 常用方法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#a-perf-stat"><span class="nav-number">3.1.</span> <span class="nav-text">a) perf stat</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#b-perf-top"><span class="nav-number">3.2.</span> <span class="nav-text">b) perf top</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#c-perf-%E7%81%AB%E7%84%B0%E5%9B%BE"><span class="nav-number">3.3.</span> <span class="nav-text">c) perf  火焰图</span></a></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -229,7 +230,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2022-07-12 13:45:24" itemprop="dateModified" datetime="2022-07-12T13:45:24+08:00">2022-07-12</time>
+      <time title="修改时间：2022-07-12 14:39:25" itemprop="dateModified" datetime="2022-07-12T14:39:25+08:00">2022-07-12</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -293,11 +294,34 @@
 
 
 
-<h2 id="b-perf-top"><a href="#b-perf-top" class="headerlink" title="b) perf top"></a>b) perf top</h2><blockquote>
+<h2 id="b-perf-top"><a href="#b-perf-top" class="headerlink" title="b) perf top"></a>b) perf top</h2><p>perf top 可以观察系统或者进程的热点函数，适合分析性能</p>
+<blockquote>
 <p>~$  sudo perf top </p>
 </blockquote>
-<p><img src="/2022/07/11/perf/perftop.png" alt="perftop"></p>
-<h2 id="c-perf-record"><a href="#c-perf-record" class="headerlink" title="c) perf record"></a>c) perf record</h2>
+<img src="/2022/07/11/perf/perftop.png" alt="perftop" style="zoom:80%;">
+
+<p>perf top -g 可以显示子热点函数的子调用栈 </p>
+<blockquote>
+<p>sudo perf top -g</p>
+</blockquote>
+<img src="/2022/07/11/perf/perftop-g.png" alt="perftop-g" style="zoom:80%;">
+
+
+
+<blockquote>
+<p>-C 可以只看某一个cpu上的事件，-p 可以指定pid 等等 具体可以通过perf top –help 查看</p>
+<p>在perf top  按 A 键还可以查看汇编代码，并查看汇编的热点指令 ， 如果按键没有反应说明编译的时候有问题，需要解决大部分依赖</p>
+</blockquote>
+<h2 id="c-perf-火焰图"><a href="#c-perf-火焰图" class="headerlink" title="c) perf  火焰图"></a>c) perf  火焰图</h2><p>perf record  用于性能统计，大部分都是看cpu资源的信息和进程相关信息，在当前目录下生成 perf.data 文件，可以通过 perf report 解析 perf.data 文件，但是都是字符类型的信息，不容易观察，所以这里可以搭配 火焰图或  观察</p>
+<p>火焰图四步：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sudo perf record -e cpu-clock -g -p   [PID] </span><br><span class="line">sudo perf script -i perf.data &amp;&gt;  perf.unfold </span><br><span class="line">sudo ./stackcollapse-perf.pl perf.unfold &amp;&gt; perf.folded</span><br><span class="line">sudo ./flamegraph.pl perf.folded &gt; perf.svg  </span><br></pre></td></tr></table></figure>
+
+<p>用浏览器打开perf.svg图片就行</p>
+<blockquote>
+<p>flamegraph.pl  是Flame Graph的工具，位于github 上<br>git clone <a target="_blank" rel="noopener" href="https://github.com/brendangregg/FlameGraph.git">https://github.com/brendangregg/FlameGraph.git</a></p>
+</blockquote>
+<p>参考博客： <a target="_blank" rel="noopener" href="https://www.cnblogs.com/happyliu/p/6142929.html">https://www.cnblogs.com/happyliu/p/6142929.html</a></p>
+
     </div>
 
     
