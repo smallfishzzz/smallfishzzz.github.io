@@ -19,7 +19,7 @@ live2d:
   pluginModelPath: assets/
   tagMode: false
   model:
-    use: live2d-widget-model-hibiki  #选择哪种模型
+    use: live2d-widget-model-shizuku  #选择哪种模型
   display: #放置位置和大小
     position: right
     width: 150
