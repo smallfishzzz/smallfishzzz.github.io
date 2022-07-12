@@ -22,8 +22,8 @@ live2d:
     use: live2d-widget-model-shizuku  #选择哪种模型
   display: #放置位置和大小
     position: right
-    width: 150
-    height: 300
+    width: 300
+    height: 600
   mobile:
     show: false #是否在手机端显示
 
