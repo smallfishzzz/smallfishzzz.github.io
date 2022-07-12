@@ -18,27 +18,31 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha256-DfWjNxDkM94fVBWx1H5BMMp0Zq7luBlV8QRcSES7s+0=" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
 
-<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.12.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+<script class="next-config" data-name="main" type="application/json">{"hostname":"smallfishzzz.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.12.2","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
 
-    <meta name="description" content="1 perf工具​	Perf是Linux kernel自带的系统性能优化工具。Perf的优势在于与Linux Kernel的紧密结合，它可以最先应用到加入Kernel的new feature。pef可以用于查看热点函数，查看cashe miss的比率，从而帮助开发者来优化程序性能。 2 获得perfa) 系统安装  debian、ubuntu、uos 下：sudo apt install linu">
+    <meta name="description" content="1 perf工具​	 Perf是Linux kernel自带的系统性能优化工具。Perf的优势在于与Linux Kernel的紧密结合，它可以最先应用到加入Kernel的new feature。perf可以统计硬件相关的信息如cpu cache miss、tlb miss、ips等等，软件上可以查看代码执行热点函数、热点指令、cpu迁移、等等，从而帮助开发者来优化程序性能。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="linux perf 使用">
-<meta property="og:url" content="http://example.com/2022/07/11/perf/index.html">
+<meta property="og:url" content="https://smallfishzzz.github.io/2022/07/11/perf/index.html">
 <meta property="og:site_name" content="Small fish">
-<meta property="og:description" content="1 perf工具​	Perf是Linux kernel自带的系统性能优化工具。Perf的优势在于与Linux Kernel的紧密结合，它可以最先应用到加入Kernel的new feature。pef可以用于查看热点函数，查看cashe miss的比率，从而帮助开发者来优化程序性能。 2 获得perfa) 系统安装  debian、ubuntu、uos 下：sudo apt install linu">
+<meta property="og:description" content="1 perf工具​	 Perf是Linux kernel自带的系统性能优化工具。Perf的优势在于与Linux Kernel的紧密结合，它可以最先应用到加入Kernel的new feature。perf可以统计硬件相关的信息如cpu cache miss、tlb miss、ips等等，软件上可以查看代码执行热点函数、热点指令、cpu迁移、等等，从而帮助开发者来优化程序性能。">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://smallfishzzz.github.io/perf/ysj111.png">
 <meta property="article:published_time" content="2022-07-11T07:40:50.000Z">
-<meta property="article:modified_time" content="2022-07-11T08:03:14.732Z">
+<meta property="article:modified_time" content="2022-07-12T03:25:30.504Z">
 <meta property="article:author" content="ysj">
-<meta property="article:tag" content="linux内核 perf">
+<meta property="article:tag" content="linux内核">
+<meta property="article:tag" content="perf">
+<meta property="article:tag" content="火焰图">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://smallfishzzz.github.io/perf/ysj111.png">
 
 
-<link rel="canonical" href="http://example.com/2022/07/11/perf/">
+<link rel="canonical" href="https://smallfishzzz.github.io/2022/07/11/perf/">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://example.com/2022/07/11/perf/","path":"2022/07/11/perf/","title":"linux perf 使用"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://smallfishzzz.github.io/2022/07/11/perf/","path":"2022/07/11/perf/","title":"linux perf 使用"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
 <title>linux perf 使用 | Small fish</title>
@@ -61,6 +65,9 @@
       <div class="header-inner"><div class="site-brand-container">
   <div class="site-nav-toggle">
     <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
     </div>
   </div>
 
@@ -71,7 +78,7 @@
       <p class="site-title">Small fish</p>
       <i class="logo-line"></i>
     </a>
-      <p class="site-subtitle" itemprop="description">已有知识，后比再有;已学知识，后必再学</p>
+      <p class="site-subtitle" itemprop="description">已有知识,后必再有; 已学知识,后必再学</p>
   </div>
 
   <div class="site-nav-right">
@@ -82,6 +89,10 @@
 
 
 
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">4</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">1</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">2</span></a></li>
+  </ul>
+</nav>
 
 
 
@@ -110,7 +121,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-perf%E5%B7%A5%E5%85%B7"><span class="nav-number">1.</span> <span class="nav-text">1 perf工具</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-%E8%8E%B7%E5%BE%97perf"><span class="nav-number">2.</span> <span class="nav-text">2 获得perf</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-%E7%BC%96%E8%AF%91"><span class="nav-number">3.</span> <span class="nav-text">3 编译</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4-%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95"><span class="nav-number">4.</span> <span class="nav-text">4 使用方法</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-perf%E5%B7%A5%E5%85%B7"><span class="nav-number">1.</span> <span class="nav-text">1 perf工具</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-%E8%8E%B7%E5%BE%97perf"><span class="nav-number">2.</span> <span class="nav-text">2 获得perf</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-%E5%B8%B8%E7%94%A8%E6%96%B9%E6%B3%95"><span class="nav-number">3.</span> <span class="nav-text">3 常用方法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#a-perf-stat"><span class="nav-number">3.1.</span> <span class="nav-text">a) perf stat</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#b-perf-top"><span class="nav-number">3.2.</span> <span class="nav-text">b) perf top</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#c-perf-record"><span class="nav-number">3.3.</span> <span class="nav-text">c) perf record</span></a></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -127,9 +138,15 @@
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
-      <div class="site-state-item site-state-tags">
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
         <span class="site-state-item-count">1</span>
-        <span class="site-state-item-name">标签</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
 </div>
@@ -137,6 +154,9 @@
       <span class="links-of-author-item">
         <a href="https://github.com/smallfishzzz" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;smallfishzzz" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
       </span>
+  </div>
+  <div class="cc-license site-overview-item animated" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="https://cdnjs.cloudflare.com/ajax/libs/creativecommons-vocabulary/2020.11.3/assets/license_badges/small/by_nc_sa.svg" alt="Creative Commons"></a>
   </div>
 
 
@@ -155,6 +175,7 @@
     <i class="fa fa-arrow-up"></i>
     <span>0%</span>
   </div>
+  <div class="reading-progress-bar"></div>
 
 <noscript>
   <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
@@ -172,7 +193,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/07/11/perf/">
+    <link itemprop="mainEntityOfPage" href="https://smallfishzzz.github.io/2022/07/11/perf/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -200,9 +221,24 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">发表于</span>
-      
 
-      <time title="创建时间：2022-07-11 15:40:50 / 修改时间：16:03:14" itemprop="dateCreated datePublished" datetime="2022-07-11T15:40:50+08:00">2022-07-11</time>
+      <time title="创建时间：2022-07-11 15:40:50" itemprop="dateCreated datePublished" datetime="2022-07-11T15:40:50+08:00">2022-07-11</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2022-07-12 11:25:30" itemprop="dateModified" datetime="2022-07-12T11:25:30+08:00">2022-07-12</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/linux-%E8%B0%83%E8%AF%95%E6%8A%80%E5%B7%A7/" itemprop="url" rel="index"><span itemprop="name">linux 调试技巧</span></a>
+        </span>
     </span>
 
   
@@ -222,11 +258,41 @@
     
     
     <div class="post-body" itemprop="articleBody">
-        <h1 id="1-perf工具"><a href="#1-perf工具" class="headerlink" title="1 perf工具"></a>1 perf工具</h1><p>​	Perf是Linux kernel自带的系统性能优化工具。Perf的优势在于与Linux Kernel的紧密结合，它可以最先应用到加入Kernel的new feature。pef可以用于查看热点函数，查看cashe miss的比率，从而帮助开发者来优化程序性能。</p>
+        <h1 id="1-perf工具"><a href="#1-perf工具" class="headerlink" title="1 perf工具"></a>1 perf工具</h1><p>​	 Perf是Linux kernel自带的系统性能优化工具。Perf的优势在于与Linux Kernel的紧密结合，它可以最先应用到加入Kernel的new feature。perf可以统计硬件相关的信息如cpu cache miss、tlb miss、ips等等，软件上可以查看代码执行热点函数、热点指令、cpu迁移、等等，从而帮助开发者来优化程序性能。</p>
+<span id="more"></span>
+
+
+
 <h1 id="2-获得perf"><a href="#2-获得perf" class="headerlink" title="2 获得perf"></a>2 获得perf</h1><p>a) 系统安装 </p>
 <p>debian、ubuntu、uos 下：<code>sudo apt install linux-perf</code> </p>
 <p>archlinux下 <code> sudo pacman -S perf</code> </p>
-<h1 id="3-编译"><a href="#3-编译" class="headerlink" title="3 编译"></a>3 编译</h1><h1 id="4-使用方法"><a href="#4-使用方法" class="headerlink" title="4 使用方法"></a>4 使用方法</h1>
+<p>b) 获取内核源码，在源码目录下执行<code>make tools/perf</code> 或者<code>cd tools/perf  &amp;&amp;  make </code> </p>
+<p>编译成功后在<code>tools/perf</code>目录下会生成perf 文件，cp 到<code>/usr/bin/</code> 目录下就ok了</p>
+<blockquote>
+<p> 编译尽量去掉警告，不然会有很多功能不支持，原因是有很多依赖包没有安装，最好根据编译提示都装一边</p>
+</blockquote>
+<h1 id="3-常用方法"><a href="#3-常用方法" class="headerlink" title="3 常用方法"></a>3 常用方法</h1><h2 id="a-perf-stat"><a href="#a-perf-stat" class="headerlink" title="a) perf stat"></a>a) perf stat</h2><blockquote>
+<p>Usage: perf stat [<options>] [<command>]</options></p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">~$ sudo perf stat</span><br><span class="line">^C</span><br><span class="line"> Performance counter stats <span class="keyword">for</span> <span class="string">&#x27;system wide&#x27;</span>:</span><br><span class="line">          <span class="number">9</span>,<span class="number">546.15</span> msec cpu-clock                 #    <span class="number">7.957</span> CPUs utilized         </span><br><span class="line">             <span class="number">5</span>,<span class="number">160</span>      context-switches          #    <span class="number">0.541</span> K/sec                 </span><br><span class="line">               <span class="number">952</span>      cpu-migrations            #    <span class="number">0.100</span> K/sec                 </span><br><span class="line">             <span class="number">3</span>,<span class="number">340</span>      page-faults               #    <span class="number">0.350</span> K/sec                 </span><br><span class="line">       <span class="number">678</span>,<span class="number">561</span>,<span class="number">527</span>      cycles                    #    <span class="number">0.071</span> GHz                   </span><br><span class="line">       <span class="number">548</span>,<span class="number">416</span>,<span class="number">618</span>      instructions              #    <span class="number">0.81</span>  insn per cycle       </span><br><span class="line">   &lt;not supported&gt;      branches                                                   </span><br><span class="line">         <span class="number">3</span>,<span class="number">406</span>,<span class="number">596</span>      branch-misses  </span><br><span class="line">              </span><br><span class="line">       <span class="number">1.199787833</span> seconds time elapsed</span><br></pre></td></tr></table></figure>
+
+
+
+<blockquote>
+<p>perf stat  ls </p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">~$ sudo perf stat ls</span><br><span class="line">^C</span><br><span class="line">Performance counter stats <span class="keyword">for</span> <span class="string">&#x27;ls&#x27;</span>:</span><br><span class="line">              <span class="number">0.91</span> msec task-clock                #    <span class="number">0.648</span> CPUs utilized         </span><br><span class="line">                 <span class="number">0</span>      context-switches          #    <span class="number">0.000</span> K/sec                 </span><br><span class="line">                 <span class="number">0</span>      cpu-migrations            #    <span class="number">0.000</span> K/sec                 </span><br><span class="line">                <span class="number">90</span>      page-faults               #    <span class="number">0.099</span> M/sec                 </span><br><span class="line">         <span class="number">1</span>,<span class="number">595</span>,<span class="number">716</span>      cycles                    #    <span class="number">1.760</span> GHz                   </span><br><span class="line">         <span class="number">1</span>,<span class="number">454</span>,<span class="number">990</span>      instructions              #    <span class="number">0.91</span>  insn per cycle       </span><br><span class="line">   &lt;not supported&gt;      branches                                                   </span><br><span class="line">            <span class="number">15</span>,<span class="number">844</span>      branch-misses </span><br><span class="line">                  </span><br><span class="line">       <span class="number">0.001398443</span> seconds time elapsed</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>context-switches   进程的上下文切换次数<br>cpu-migrations      进程的cpu迁移次数<br>branch-miss           进程代码的分支预测miss次数(硬件性)   </p>
+</blockquote>
+<p> 等等一些性能指标，还有更多指标可以通过perf list 来查看，每个硬件提供的可能不相同， 如果想使用下面的指标通过-e 指定 ‘ ,’ 隔开如  sudo perf stat -e branch-misses,L1-dcache-loads      [command]</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">~$ perf <span class="built_in">list</span></span><br><span class="line"></span><br><span class="line">List of pre-defined <span class="title function_">events</span> <span class="params">(to be used in -e)</span>:</span><br><span class="line"></span><br><span class="line">  branch-misses                                      [Hardware event]</span><br><span class="line">  bus-cycles                                         [Hardware event]</span><br><span class="line">  cache-misses                                       [Hardware event]</span><br><span class="line">  cache-references                                   [Hardware event]</span><br><span class="line">  cpu-cycles OR cycles                               [Hardware event]</span><br><span class="line">  instructions                                       [Hardware event]</span><br><span class="line">  stalled-cycles-backend OR idle-cycles-backend      [Hardware event]</span><br><span class="line">  stalled-cycles-frontend OR idle-cycles-frontend    [Hardware event]</span><br><span class="line"></span><br><span class="line">  alignment-faults                                   [Software event]</span><br><span class="line">  bpf-output                                         [Software event]</span><br><span class="line">  context-switches OR cs                             [Software event]</span><br><span class="line">  cpu-clock                                          [Software event]</span><br><span class="line">  cpu-migrations OR migrations                       [Software event]</span><br><span class="line">  dummy                                              [Software event]</span><br><span class="line">  emulation-faults                                   [Software event]</span><br><span class="line">  major-faults                                       [Software event]</span><br><span class="line">  minor-faults                                       [Software event]</span><br><span class="line">  page-faults OR faults                              [Software event]</span><br><span class="line">  task-clock                                         [Software event]</span><br><span class="line"></span><br><span class="line">  duration_time                                      [Tool event]</span><br><span class="line">  L1-dcache-load-misses                              [Hardware cache event]</span><br><span class="line">  L1-dcache-loads                                    [Hardware cache event]</span><br><span class="line">  L1-icache-load-misses                              [Hardware cache event]</span><br><span class="line">  L1-icache-loads                                    [Hardware cache event]</span><br><span class="line">  branch-load-misses                                 [Hardware cache event]</span><br><span class="line">  branch-loads                                       [Hardware cache event]</span><br><span class="line">  dTLB-load-misses                                   [Hardware cache event]</span><br><span class="line">  dTLB-loads                                         [Hardware cache event]</span><br><span class="line">  iTLB-load-misses                                   [Hardware cache event]</span><br><span class="line">  iTLB-loads                                         [Hardware cache event]</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="b-perf-top"><a href="#b-perf-top" class="headerlink" title="b) perf top"></a>b) perf top</h2><p><img src="/perf/ysj111.png" alt="ysj111"></p>
+<h2 id="c-perf-record"><a href="#c-perf-record" class="headerlink" title="c) perf record"></a>c) perf record</h2>
     </div>
 
     
@@ -257,7 +323,9 @@
 </div>
 
           <div class="post-tags">
-              <a href="/tags/linux%E5%86%85%E6%A0%B8-perf/" rel="tag"># linux内核 perf</a>
+              <a href="/tags/linux%E5%86%85%E6%A0%B8/" rel="tag"># linux内核</a>
+              <a href="/tags/perf/" rel="tag"># perf</a>
+              <a href="/tags/%E7%81%AB%E7%84%B0%E5%9B%BE/" rel="tag"># 火焰图</a>
           </div>
 
         
@@ -293,7 +361,7 @@
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
-  <span class="author" itemprop="copyrightHolder">ysj</span>
+  <span class="author" itemprop="copyrightHolder">Small fish</span>
 </div>
 <div class="busuanzi-count">
     <span class="post-meta-item" id="busuanzi_container_site_uv">
@@ -336,5 +404,5 @@
 
 
 
-</body>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"model":{"jsonPath":"/live2dw/assets/shizuku.model.json"},"display":{"position":"right","width":300,"height":600},"mobile":{"show":false},"log":false});</script></body>
 </html>
