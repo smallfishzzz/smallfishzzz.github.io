@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 5.4.2">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha256-DfWjNxDkM94fVBWx1H5BMMp0Zq7luBlV8QRcSES7s+0=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"smallfishzzz.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.12.2","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="#深入分析内核调度过程内核版本4.19.0 12345678 _____        _          _         _       &#x2F;  ___|      | |        | |       | |      \ &#96;--.   ___ | |__    __| | _   _ | |  ___  &#96;--. \ &#x2F; __|| &amp;#x27;_ \  &#x2F; _&#96; || | | ||">
+<meta property="og:type" content="article">
+<meta property="og:title" content="进程管理 -- 调度">
+<meta property="og:url" content="https://smallfishzzz.github.io/2022/07/12/task-schedule/index.html">
+<meta property="og:site_name" content="Small fish">
+<meta property="og:description" content="#深入分析内核调度过程内核版本4.19.0 12345678 _____        _          _         _       &#x2F;  ___|      | |        | |       | |      \ &#96;--.   ___ | |__    __| | _   _ | |  ___  &#96;--. \ &#x2F; __|| &amp;#x27;_ \  &#x2F; _&#96; || | | ||">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-07-12T06:55:54.000Z">
+<meta property="article:modified_time" content="2022-07-12T06:58:30.650Z">
+<meta property="article:author" content="ysj">
+<meta property="article:tag" content="linux内核">
+<meta property="article:tag" content="调度">
+<meta property="article:tag" content="schedule">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://smallfishzzz.github.io/2022/07/12/task-schedule/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://smallfishzzz.github.io/2022/07/12/task-schedule/","path":"2022/07/12/task-schedule/","title":"进程管理 -- 调度"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>进程管理 -- 调度 | Small fish</title>
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Small fish</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">已有知识,后必再有; 已学知识,后必再学</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">5</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">2</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">2</span></a></li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E4%BB%80%E4%B9%88%E6%98%AF%E5%86%85%E6%A0%B8%E8%B0%83%E5%BA%A6"><span class="nav-number">1.</span> <span class="nav-text">一、什么是内核调度</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E8%B0%83%E5%BA%A6%E5%99%A8%E7%9A%84%E7%BB%84%E6%88%90%E9%83%A8%E5%88%86"><span class="nav-number">2.</span> <span class="nav-text">二、调度器的组成部分</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#2%E7%A7%8D%E8%B0%83%E5%BA%A6%E5%9C%BA%E6%99%AF"><span class="nav-number">2.1.</span> <span class="nav-text">2种调度场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6%E7%A7%8D%E8%B0%83%E5%BA%A6%E7%AD%96%E7%95%A5"><span class="nav-number">2.2.</span> <span class="nav-text">6种调度策略</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5%E7%A7%8D%E8%B0%83%E5%BA%A6%E7%B1%BB"><span class="nav-number">2.3.</span> <span class="nav-text">5种调度类</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E6%80%8E%E4%B9%88%E8%B0%83%E5%BA%A6"><span class="nav-number">3.</span> <span class="nav-text">三、怎么调度</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1%E3%80%81%E8%87%AA%E6%84%BF%E8%B0%83%E7%94%A8"><span class="nav-number">3.1.</span> <span class="nav-text">1、自愿调用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2%E3%80%81%E8%A2%AB%E8%B0%83%E7%94%A8"><span class="nav-number">3.2.</span> <span class="nav-text">2、被调用</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9B%9B%E3%80%81-schedule-%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="nav-number">4.</span> <span class="nav-text">四、__schedule()的实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1%E3%80%81%E9%80%89%E6%8B%A9%E9%9C%80%E8%A6%81%E6%89%A7%E8%A1%8C%E7%9A%84%E4%BB%BB%E5%8A%A1"><span class="nav-number">4.1.</span> <span class="nav-text">1、选择需要执行的任务</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2%E3%80%81%E6%89%A7%E8%A1%8C%E5%88%87%E6%8D%A2"><span class="nav-number">4.2.</span> <span class="nav-text">2、执行切换</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">ysj</p>
+  <div class="site-description" itemprop="description">一个打工仔</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">2</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/smallfishzzz" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;smallfishzzz" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
+  <div class="cc-license site-overview-item animated" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="https://cdnjs.cloudflare.com/ajax/libs/creativecommons-vocabulary/2020.11.3/assets/license_badges/small/by_nc_sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://smallfishzzz.github.io/2022/07/12/task-schedule/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="ysj">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Small fish">
+      <meta itemprop="description" content="一个打工仔">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="进程管理 -- 调度 | Small fish">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          进程管理 -- 调度
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2022-07-12 14:55:54 / 修改时间：14:58:30" itemprop="dateCreated datePublished" datetime="2022-07-12T14:55:54+08:00">2022-07-12</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/linux-%E5%86%85%E6%A0%B8%E4%BB%A3%E7%A0%81%E9%98%85%E8%AF%BB/" itemprop="url" rel="index"><span itemprop="name">linux 内核代码阅读</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>#深入分析内核调度过程<br>内核版本4.19.0</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"> _____        _          _         _       </span><br><span class="line">/  ___|      | |        | |       | |      </span><br><span class="line">\ `--.   ___ | |__    __| | _   _ | |  ___ </span><br><span class="line"> `--. \ / __|| &#x27;_ \  / _` || | | || | / _ \</span><br><span class="line">/\__/ /| (__ | | | || (_| || |_| || ||  __/</span><br><span class="line">\____/  \___||_| |_| \__,_| \__,_||_| \___|</span><br><span class="line">                                           </span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h1 id="一、什么是内核调度"><a href="#一、什么是内核调度" class="headerlink" title="一、什么是内核调度"></a>一、什么是内核调度</h1><p> 在2.6内核之前Linux采用传统的UNIX调度算法。由于没有考虑到SMP，所以SMP不支持。从2.6内核之后调度器再一次的大的改动。2.6.23的版本中，完全公平调度器（CFS）最终成为Linux调度算法。Linux的进程调度基于调度类。每个调度类都有一个特定优先级。每一个不同的调度类，都有不同的调度算法，就是为了满足不同的需要。这表示对CPU的占用时间由操作系统决定的，具体为操作系统中的调度器。调度器决定了什么时候停止一个进程以便让其他进程有机会运行，同时挑选出一个其他的进程开始运行。且内核必须提供一种方法，让各个进程之间能够公平的使用CPU，并且还要考虑到不同场景下不同任务的优先级。</p>
+<p> schedule();函数就是内核使用最频繁的调用函数之一，也是理解调度操作的起点，该函数定义位置在<code>kernel/sched/core.c</code><br>下面我们暂时先忽略实时进程，只考虑完全公平调度CFS。</p>
+<span id="more"></span>
+
+<h1 id="二、调度器的组成部分"><a href="#二、调度器的组成部分" class="headerlink" title="二、调度器的组成部分"></a>二、调度器的组成部分</h1><h2 id="2种调度场景"><a href="#2种调度场景" class="headerlink" title="2种调度场景"></a>2种调度场景</h2><p>linux内核中有2种调度场景，一种为主动调度，第二种为周期性调度。<br>可以用两种方法来激活调度</p>
+<pre><code>一种是直接的, 比如进程打算睡眠或出于其他原因放弃CPU
+另一种是通过周期性的机制, 以固定的频率运行, 不时的检测是否有必要（不负责调度，只负责统计变量和更改标志位）
+</code></pre>
+<p>因此当前linux的调度程序由两个调度器组成：主调度器，周期性调度器(两者又统称为通用调度器(generic scheduler)或核心调度器(core scheduler))</p>
+<p>并且每个调度器包括两个内容：调度框架(其实质就是两个函数框架)及调度器类</p>
+<h2 id="6种调度策略"><a href="#6种调度策略" class="headerlink" title="6种调度策略"></a>6种调度策略</h2><p>内核有6种调度策略定义在<code>include/uapi/linux/sched.h</code>，SCHED_ISO是一个预留位。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * Scheduling policies</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SCHED_NORMAL        0</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SCHED_FIFO      1</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SCHED_RR        2</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SCHED_BATCH     3</span></span><br><span class="line"><span class="comment">/* SCHED_ISO: reserved but not implemented yet */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SCHED_IDLE      5</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SCHED_DEADLINE      6</span></span><br></pre></td></tr></table></figure>
+
+<p><code>SCHED_NORMAL</code>表示为普通进程;<br><code>SCHED_FIFO</code>表示先入先出的实时类，此时如果没有更高优先级的进程就会一直被执行下去，不会停止;<br><code>SCHED_RR</code>表示时间片轮转的实时进程。当调度程序把CPU分配给进程的时候，它把该进程的描述符放在运行队列链表的末尾。这种策略保证对所有具有相同优先级的SCHED_RR实时进程进行公平分配CPU时间;<br><code>SCHED_BATCH</code>表示采用分时策略，根据动态优先级，分配CPU资源。在有实时进程的时候，实时进程优先调度。但针对吞吐量优化，除了不能抢占外与常规进程一样，允许任务运行更长时间，更好使用高速缓存，适合于成批处理的工作;<br><code>SCHED_ISO</code>是预留位，还未定义;<br><code>SCHED_IDLE</code>是优先级最低的，也是调度idle运行的;<br><code>SCHED_DEADLINE</code>是新支持的实时进程调度策略，针对突发型计算，并且对延迟和完成时间敏感的任务使用，基于EDF（earliest deadline first）;</p>
+<h2 id="5种调度类"><a href="#5种调度类" class="headerlink" title="5种调度类"></a>5种调度类</h2><p>内核中定义了5种调度类，每种调度器都会对应一个调度类，这个调度类包含了该调度器的所有操作方法：<br><code>SCHED_NORMAL</code>和<code>SCHED_BATCH</code>使用 fair_sched_class类，定义位置在<code>kernel/sched/fair.c</code><br><code>SCHED_FIFO</code>和<code>SCHED_RR</code>使用 rt_sched_class类，定义位置在<code>kernel/sched/rt.c</code><br><code>SCHED_IDLE</code>使用   idle_sched_class类，定义位置在<code>kernel/sched/idle.c</code><br><code>SCHED_DEADLINE</code>使用 dl_sched_class类，定义位置在<code>kernel/sched/deadline.c</code><br>这些调度类都是通过<code>struct sched_class</code>结构体定义的，位置为<code>kernel/sched/sched.h</code>等等</p>
+<p>调度类型的级别为<br> stop_sched_class -&gt; dl_sched_class -&gt; rt_sched_class -&gt; fair_sched_class -&gt; idle_sched_class</p>
+<h1 id="三、怎么调度"><a href="#三、怎么调度" class="headerlink" title="三、怎么调度"></a>三、怎么调度</h1><p> 调度产生的时机为两种，一种是自愿被调度，一种是强制被调度。</p>
+<h2 id="1、自愿调用"><a href="#1、自愿调用" class="headerlink" title="1、自愿调用"></a>1、自愿调用</h2><p>自愿被调用可以是通过schedule();或者是schedule_timeout();，在用户空间也可以使用sleep或者pause也是可以的，这些调度都是显式地让出，还有一些隐式地让出cpu，被调走，这种情况就是open，write，read，等等，涉及到了阻塞等待的都会被cpu视为主动放弃cpu，这种情况是比较难找到原因的。</p>
+<h2 id="2、被调用"><a href="#2、被调用" class="headerlink" title="2、被调用"></a>2、被调用</h2><p>   强制被调也是抢占式内核，当内核开启抢占模式的时候，会多出几个调度的时机，也就是在系统调用或者是在中断上下文的时候调用preemt_enable()或者是在终端上下文的处理函数返回的回到可抢占的上下文时。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">schedule(<span class="type">void</span>)----------&gt;|</span><br><span class="line">                         | __schedule()</span><br><span class="line">                         |   |</span><br><span class="line">preempt_schedule(<span class="type">void</span>)--&gt;|   |--&gt;pick_next_task(<span class="keyword">struct</span> rq *rq, <span class="keyword">struct</span> task_struct *prev)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p> 不管是哪一种最终都会调用到__schedule函数，该函数调用pick_netx_task，判断调度类型，然后根据调度类型去寻找需要调度的进程。</p>
+<h1 id="四、-schedule-的实现"><a href="#四、-schedule-的实现" class="headerlink" title="四、__schedule()的实现"></a>四、__schedule()的实现</h1><h2 id="1、选择需要执行的任务"><a href="#1、选择需要执行的任务" class="headerlink" title="1、选择需要执行的任务"></a>1、选择需要执行的任务</h2><p>__schedule()的是实现有鲤鱼理解调度类以及进程切换 在__schedule() 中主要做两件事情，<br>1、确认下一个需要调度的任务;<br>2、进行切换;<br>  rq：在多核系统中，进程切换总是发生在各个cpu core上，参数rq指向本次切换发生的那个cpu对应的run queue<br>  rf: rq_flags结构体定义的一个变量，其结构体内部也只有两个成员，一个是flags，另一个是val ，只是一个标志的作用<br>  prev：需要被切换的线程<br>  next：选择并且即将切换过去的线程</p>
+<p>函数被__sched修饰，__sched的作用在后面讲解</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"> <span class="type">static</span> <span class="type">void</span> __sched notrace __schedule(<span class="type">bool</span> preempt)</span><br><span class="line">&#123;</span><br><span class="line">    ... ... </span><br><span class="line"></span><br><span class="line">    next = pick_next_task(rq, prev, &amp;rf);</span><br><span class="line"></span><br><span class="line">        rq = context_switch(rq, prev, next, &amp;rf); context_switch </span><br><span class="line"></span><br><span class="line">    ... ... </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>pick_next_task是进程调度的关键步骤，主要功能是从发生调度的CPU的运行队列中选择一个进程运行。<br>系统中的调度顺序是：实时进程——-&gt;普通进程——&gt;空闲进程。<br>分别从属于三个调度类：rt_sched_class，fair_sched_class和 idle_sched_class（每个cpu都有且只有一个Idle 进程且不会阻塞）。<br>在pick_next_task 中主要检测运行队列中是否有实时进程，如果有则从实时进程中选择进程，否则从普通进程中寻找，如果普通进程也没有就选择idle进程。<br>在 p &#x3D; fair_sched_class.pick_next_task(rq, prev, rf);函数返回值中，p 会出现三种情况：<br>1)、RETRY_TASK:表示有更高的优先级进程在链表中，需要遍历链表找到优先级最高的进程。<br>2)、一个task 结构体的指针，表示已经选择到了一个进程。<br>3)、NULL，则调度idle进程（什么是idle进程，后面会讲）。</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> inline <span class="keyword">struct</span> task_struct *</span><br><span class="line">pick_next_task(<span class="keyword">struct</span> rq *rq, <span class="keyword">struct</span> task_struct *prev, <span class="keyword">struct</span> rq_flags *rf) </span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">struct</span> sched_class *<span class="keyword">class</span>;</span><br><span class="line">    <span class="keyword">struct</span> task_struct *p;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (likely((prev-&gt;sched_class == &amp;idle_sched_class || ------------------------[<span class="number">1</span>]</span><br><span class="line">            prev-&gt;sched_class == &amp;fair_sched_class) &amp;&amp;</span><br><span class="line">           rq-&gt;nr_running == rq-&gt;cfs.h_nr_running)) &#123;</span><br><span class="line"></span><br><span class="line">        p = fair_sched_class.pick_next_task(rq, prev, rf); -----------------------[<span class="number">2</span>]</span><br><span class="line">        <span class="keyword">if</span> (unlikely(p == RETRY_TASK))</span><br><span class="line">            <span class="keyword">goto</span> again;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (unlikely(!p))</span><br><span class="line">            p = idle_sched_class.pick_next_task(rq, prev, rf); -------------------[<span class="number">3</span>]</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> p;</span><br><span class="line">    &#125;    </span><br><span class="line">again:</span><br><span class="line">    for_each_class(<span class="keyword">class</span>) &#123;-------------------------------------------------------[<span class="number">4</span>]</span><br><span class="line">        p = <span class="keyword">class</span>-&gt;<span class="title">pick_next_task</span>(<span class="title">rq</span>, <span class="title">prev</span>, <span class="title">rf</span>); </span><br><span class="line">        <span class="keyword">if</span> (p) &#123;</span><br><span class="line">            <span class="keyword">if</span> (unlikely(p == RETRY_TASK))</span><br><span class="line">                <span class="keyword">goto</span> again;</span><br><span class="line">            <span class="keyword">return</span> p;</span><br><span class="line">        &#125;    </span><br><span class="line">    &#125;    </span><br><span class="line">    <span class="comment">/* The idle class should always have a runnable task: */</span></span><br><span class="line">    BUG();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>[1] prev &#x3D; rq-&gt;curr; 也就是当前的运行队列是idle类或者fair类并且运行队列里有可运行的任务时，就进入内部判断<br>[2]通过公平调度类去寻找可运行队列，如果返回的p为空说明公平调度器没有找到可运行的进程，如果返回的值等于RETRY_TASK说明可运行队列中有更高优先级的队列，则跳转到goto语句里遍历出最高优先级的任务并执行。<br>[3]当没有可运行的普通任务，也没有更高优先级的任务事，把cpu让给idle调度。<br>[4]当上面的fair发现了更高优先级任务的时候可以通过这里来遍历，将其找出来并运行。</p>
+<h2 id="2、执行切换"><a href="#2、执行切换" class="headerlink" title="2、执行切换"></a>2、执行切换</h2><p>一旦确认好了 pre和next 的task后，context_switch 就可以执行切换的工作，</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">context_switch(<span class="keyword">struct</span> rq *rq, <span class="keyword">struct</span> task_struct *prev,</span><br><span class="line">           <span class="keyword">struct</span> task_struct *next, <span class="keyword">struct</span> rq_flags *rf)</span><br><span class="line">&#123;   </span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">mm_struct</span> *<span class="title">mm</span>, *<span class="title">oldmm</span>;</span></span><br><span class="line"></span><br><span class="line">    prepare_task_switch(rq, prev, next);----------------------[<span class="number">1</span>]</span><br><span class="line">    </span><br><span class="line">    mm = next-&gt;mm;</span><br><span class="line">    oldmm = prev-&gt;active_mm;----------------------------------[<span class="number">2</span>]</span><br><span class="line"></span><br><span class="line">    arch_start_context_switch(prev);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!mm) &#123;------------------------------------------------[<span class="number">3</span>]</span><br><span class="line">        next-&gt;active_mm = oldmm;</span><br><span class="line">        mmgrab(oldmm);</span><br><span class="line">        enter_lazy_tlb(oldmm, next);--------------------------[<span class="number">4</span>]</span><br><span class="line">    &#125; <span class="keyword">else</span></span><br><span class="line">        switch_mm_irqs_off(oldmm, mm, next);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (!prev-&gt;mm) &#123;------------------------------------------[<span class="number">5</span>]</span><br><span class="line">        prev-&gt;active_mm = <span class="literal">NULL</span>;</span><br><span class="line">        rq-&gt;prev_mm = oldmm;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    rq-&gt;clock_update_flags &amp;= ~(RQCF_ACT_SKIP|RQCF_REQ_SKIP);</span><br><span class="line"></span><br><span class="line">    prepare_lock_switch(rq, next, rf);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/* Here we just switch the register state and the stack. */</span></span><br><span class="line">    switch_to(prev, next, prev);------------------------------[<span class="number">6</span>]</span><br><span class="line">    barrier();</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> finish_task_switch(prev);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>[1]准备切换，会将rq锁和中断全部关掉，在完成切换后再开启。<br>[2]next是需要切入的进程，prev是被切走的进程，mm变量是指向next进程的空间描述符，而oldmm是指prev进程空间的描述符。active_mmprev也就是当前正在使用的进程，对于普通进程来讲，他的task_struct任务描述符的mm 和 active_mm相同，对内核线程来讲，他的task_struct的mm成员为空（因为内核线程没有进程的地址空间），但是在内核线程被调度执行的时候，总是需要一个进程的地址空间，而active_mm就是向它借用的那哦进程地址空间。<br>[3]如果mm为空，则表示next是内核线程，这个时候next没有运行的地址空间，只能借用prev进程正在使用的那个地址空间(prev-&gt;active_mm)，但是发现在prev的结构体内发现了有mm和active_mm，这个时候不能选择prev-&gt;mm，因为prev也可能是一个内核线程。<br>[4]next如果是内核的线程那么就会调用enter_lazy_tlb,标记cpu上的next task 进入lazy TLB 模式。<br>[5]如果需要被切走的prev是一个内核线程，则需要把它借用的地址空间销毁，（因为内核线程prev已经被挂起了，不需要地址空间了），但是为什么会吧prev的mm设置为oldmm呢？</p>
+<p>如果切入了内核线程，那么实际的进程地址空间并没有切换，应为这个切入的内核进程只是借用了切走时使用的那个地址空间active_mm，但是在内核中的实体而言，我们在释放一个内核数据对象之前，会检测这个对象是否还有拥有者，如果没有则去释放这个数据对象，同理，内存描述符也是使用这个原理。<br>在context_switch里面有一个这个函数mmgrab(oldmm);它实质上是</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> inline <span class="keyword">void</span> <span class="title">mmgrab</span>(<span class="params"><span class="keyword">struct</span> mm_struct *mm</span>)</span>                      </span><br><span class="line">&#123;</span><br><span class="line">    atomic_inc(&amp;mm-&gt;mm_count);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>借用别人的地址空间，在prev切换之前对其加一个引用计数，然后在内核线程被切出的时候会将mm描述符归还，在整个内核线程运行的过程中，需要使用这个mm描述符，所以对这个mm描述符的增加减少计数操作只能在内核线程之外做操作，如果线程A—&gt;B（内核线程）—&gt;C 。A，C为非内核线程，拥有自己独立的地址空间，但是B是内核线程，没有自己独立的地址空间，需要借助其他的地址空间来运行，在A切入B的之前会使用mmgrab()对mm引用计数，表示B借走了自己A的地址空间，这个时候B就可以在A的地址空间运行，但是B运行之后没有减少引用计数，而是在C进程里去清除计数，这就感觉很神奇，为什么B不清除计数呢？（这个是最后调用了finish_task_switch(prev)，由prev自己清除的）。所以在下一个运行的时候再删除上一次的引用计数。所以前面的那行代码是这个作用。</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">switch_to(prev, next, prev);</span><br><span class="line"><span class="meta">#<span class="keyword">define</span> switch_to(prev, next, last)                 \</span></span><br><span class="line"><span class="keyword">do</span> &#123;                                    \</span><br><span class="line">    ... ...\</span><br><span class="line">    (last) = resume(prev, next, task_thread_info(next));        \                                                                                                                                                    </span><br><span class="line">&#125; <span class="keyword">while</span> (<span class="number">0</span>)</span><br></pre></td></tr></table></figure>
+
+<p>在传进去的参数中，真正参与切换的是前面两个参数prev、next，通过resume汇编代码切换后会返回一个新的last进程，这个last进程其实就是prev进程。</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">    .align  <span class="number">5</span>  </span><br><span class="line">    LEAF(resume)</span><br><span class="line">    mfc0    t1, CP0_STATUS</span><br><span class="line">    LONG_S  t1, THREAD_STATUS(a0)----------------------------------[<span class="number">1</span>]</span><br><span class="line">    cpu_save_nonscratch a0-----------------------------------------[<span class="number">2</span>]</span><br><span class="line">    LONG_S  ra, THREAD_REG31(a0)</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">if</span> defined(CONFIG_STACKPROTECTOR) &amp;&amp; !defined(CONFIG_SMP)</span></span><br><span class="line">    PTR_LA  t8, __stack_chk_guard</span><br><span class="line">    LONG_L  t9, TASK_STACK_CANARY(a1)</span><br><span class="line">    LONG_S  t9, <span class="number">0</span>(t8)</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">/</span><br><span class="line">    move    $<span class="number">28</span>, a2------------------------------------------------[<span class="number">3</span>]</span><br><span class="line">    cpu_restore_nonscratch a1 </span><br><span class="line"></span><br><span class="line">    PTR_ADDU    t0, $<span class="number">28</span>, _THREAD_SIZE - <span class="number">32</span></span><br><span class="line">    set_saved_sp    t0, t1, t2 </span><br><span class="line">    mfc0    t1, CP0_STATUS</span><br><span class="line">    li  a3, <span class="number">0xff01</span></span><br><span class="line">    <span class="keyword">and</span> t1, a3</span><br><span class="line">    LONG_L  a2, THREAD_STATUS(a1)----------------------------------[<span class="number">4</span>] </span><br><span class="line">    nor a3, $<span class="number">0</span>, a3</span><br><span class="line">    <span class="keyword">and</span> a2, a3</span><br><span class="line">    <span class="keyword">or</span>  a2, t1</span><br><span class="line"><span class="meta">#ifdef CONFIG_CPU_LOONGSON3</span></span><br><span class="line">    <span class="keyword">or</span>  a2, ST0_MM</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">    mtc0    a2, CP0_STATUS</span><br><span class="line">    move    v0, a0-------------------------------------------------[<span class="number">5</span>]</span><br><span class="line">    <span class="function">jr  ra   </span></span><br><span class="line"><span class="function">    <span class="title">END</span>(<span class="params">resume</span>) </span></span><br></pre></td></tr></table></figure>
+
+<p>这一段汇编代码是真正意义上实现了上下文切换。<br>[1] 保存上一个进程的状态<br>[2] cpu_save_nonscratch 将a1 保存进$16~$23, $29(sp), $30，以及$31,cpu_restore_nonscratch 与他相反。<br>[3] 将上一个进程放进全局指针中<br>[4] 将下一个的进程状态加载到a2中，a2为下一个任务的栈空间，可以根据resume(prev, next, task_thread_info(next))这句的第三个参数看到。<br>[5] v0是存储表达式，或者是函数返回值，在这里很明显是将a0作为函数返回值返回。</p>
+<p>最后返回一个a0的地址，a0就是传进来的prev参数，而这个参数最后回传给了context_switch中，执行了finish_task_switch(prev);函数，这个函数是在完成切换后被执行的，主要释放cpu，释放内存，释放锁等等一些清除工作。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>疯狂暗示</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/true" alt="ysj enable">
+        <span>enable</span>
+      </div>
+      <div>
+        <img src="/%E7%96%AF%E7%8B%82%E6%9A%97%E7%A4%BA" alt="ysj comment">
+        <span>comment</span>
+      </div>
+      <div>
+        <img src="/images/wechatpay.png" alt="ysj 微信">
+        <span>微信</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/linux%E5%86%85%E6%A0%B8/" rel="tag"># linux内核</a>
+              <a href="/tags/%E8%B0%83%E5%BA%A6/" rel="tag"># 调度</a>
+              <a href="/tags/schedule/" rel="tag"># schedule</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/07/11/perf/" rel="prev" title="linux perf 使用">
+                  <i class="fa fa-chevron-left"></i> linux perf 使用
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Small fish</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">false</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"model":{"jsonPath":"/live2dw/assets/shizuku.model.json"},"display":{"position":"right","width":300,"height":600},"mobile":{"show":false},"log":false});</script></body>
+</html>
