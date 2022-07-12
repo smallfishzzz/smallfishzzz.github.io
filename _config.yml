@@ -4,16 +4,33 @@
 
 # Site
 title: Small fish
-subtitle: '已有知识，后比再有;已学知识，后必再学'
+subtitle: '已有知识,后必再有; 已学知识,后必再学'
 description: '一个打工仔' 
 keywords: kernel schedule xorg mesa
 author: ysj
 language: zh-CN
 timezone: 'Asia/Shanghai'
 
+live2d:
+  enable: true
+  scriptFrom: local
+  pluginRootPath: live2dw/
+  pluginJsPath: lib/
+  pluginModelPath: assets/
+  tagMode: false
+  model:
+    use: live2d-widget-model-hibiki  #选择哪种模型
+  display: #放置位置和大小
+    position: right
+    width: 150
+    height: 300
+  mobile:
+    show: false #是否在手机端显示
+
+
 # URL
 ## Set your site url here. For example, if you use GitHub Page, set url as 'https://username.github.io/project'
-url: http://example.com
+url: https://smallfishzzz.github.io
 permalink: :year/:month/:day/:title/
 permalink_defaults:
 pretty_urls:
