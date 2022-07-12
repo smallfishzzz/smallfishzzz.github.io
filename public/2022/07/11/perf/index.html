@@ -27,13 +27,15 @@
 <meta property="og:site_name" content="Small fish">
 <meta property="og:description" content="1 perf工具​	 Perf是Linux kernel自带的系统性能优化工具。Perf的优势在于与Linux Kernel的紧密结合，它可以最先应用到加入Kernel的new feature。perf可以统计硬件相关的信息如cpu cache miss、tlb miss、ips等等，软件上可以查看代码执行热点函数、热点指令、cpu迁移、等等，从而帮助开发者来优化程序性能。">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://smallfishzzz.github.io/2022/07/11/perf/perftop.png">
 <meta property="article:published_time" content="2022-07-11T07:40:50.000Z">
-<meta property="article:modified_time" content="2022-07-12T01:23:51.029Z">
+<meta property="article:modified_time" content="2022-07-12T05:43:15.741Z">
 <meta property="article:author" content="ysj">
 <meta property="article:tag" content="linux内核">
 <meta property="article:tag" content="perf">
 <meta property="article:tag" content="火焰图">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://smallfishzzz.github.io/2022/07/11/perf/perftop.png">
 
 
 <link rel="canonical" href="https://smallfishzzz.github.io/2022/07/11/perf/">
@@ -227,7 +229,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2022-07-12 09:23:51" itemprop="dateModified" datetime="2022-07-12T09:23:51+08:00">2022-07-12</time>
+      <time title="修改时间：2022-07-12 13:43:15" itemprop="dateModified" datetime="2022-07-12T13:43:15+08:00">2022-07-12</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -270,7 +272,7 @@
 <p> 编译尽量去掉警告，不然会有很多功能不支持，原因是有很多依赖包没有安装，最好根据编译提示都装一边</p>
 </blockquote>
 <h1 id="3-常用方法"><a href="#3-常用方法" class="headerlink" title="3 常用方法"></a>3 常用方法</h1><h2 id="a-perf-stat"><a href="#a-perf-stat" class="headerlink" title="a) perf stat"></a>a) perf stat</h2><blockquote>
-<p>Usage: perf stat [<options>] [<command>]</p>
+<p>Usage: perf stat [<options>] [<command>]</options></p>
 </blockquote>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">~$ sudo perf stat</span><br><span class="line">^C</span><br><span class="line"> Performance counter stats <span class="keyword">for</span> <span class="string">&#x27;system wide&#x27;</span>:</span><br><span class="line">          <span class="number">9</span>,<span class="number">546.15</span> msec cpu-clock                 #    <span class="number">7.957</span> CPUs utilized         </span><br><span class="line">             <span class="number">5</span>,<span class="number">160</span>      context-switches          #    <span class="number">0.541</span> K/sec                 </span><br><span class="line">               <span class="number">952</span>      cpu-migrations            #    <span class="number">0.100</span> K/sec                 </span><br><span class="line">             <span class="number">3</span>,<span class="number">340</span>      page-faults               #    <span class="number">0.350</span> K/sec                 </span><br><span class="line">       <span class="number">678</span>,<span class="number">561</span>,<span class="number">527</span>      cycles                    #    <span class="number">0.071</span> GHz                   </span><br><span class="line">       <span class="number">548</span>,<span class="number">416</span>,<span class="number">618</span>      instructions              #    <span class="number">0.81</span>  insn per cycle       </span><br><span class="line">   &lt;not supported&gt;      branches                                                   </span><br><span class="line">         <span class="number">3</span>,<span class="number">406</span>,<span class="number">596</span>      branch-misses  </span><br><span class="line">              </span><br><span class="line">       <span class="number">1.199787833</span> seconds time elapsed</span><br></pre></td></tr></table></figure>
 
@@ -291,7 +293,11 @@
 
 
 
-<h2 id="b-perf-top"><a href="#b-perf-top" class="headerlink" title="b) perf top"></a>b) perf top</h2><h2 id="c-perf-record"><a href="#c-perf-record" class="headerlink" title="c) perf record"></a>c) perf record</h2>
+<h2 id="b-perf-top"><a href="#b-perf-top" class="headerlink" title="b) perf top"></a>b) perf top</h2><blockquote>
+<p>~$  sudo perf top </p>
+</blockquote>
+<p><img src="/2022/07/11/perf/perftop.png" alt="perftop"></p>
+<h2 id="c-perf-record"><a href="#c-perf-record" class="headerlink" title="c) perf record"></a>c) perf record</h2>
     </div>
 
     
@@ -402,6 +408,12 @@
 
 
 
+  
 
-<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"model":{"jsonPath":"/live2dw/assets/hibiki.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":false},"log":false});</script></body>
+  <script class="next-config" data-name="enableMath" type="application/json">false</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"model":{"jsonPath":"/live2dw/assets/shizuku.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":false},"log":false});</script></body>
 </html>

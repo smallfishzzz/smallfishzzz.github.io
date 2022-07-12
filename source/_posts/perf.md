@@ -29,7 +29,7 @@ debian、ubuntu、uos 下：`sudo apt install linux-perf`
 
 archlinux下 ` sudo pacman -S perf` 
 
-b) 获取内核源码，在源码目录下执行`make tools/perf` 或者`cd tools/perf  &&  make ` 
+b) 上述方法使用默认的操作系统，如果自己更换过内核且版本不一致，需要从内核源码中编译perf，在源码目录下执行`make tools/perf` 或者`cd tools/perf  &&  make ` 
 
 编译成功后在`tools/perf`目录下会生成perf 文件，cp 到`/usr/bin/` 目录下就ok了
 
@@ -132,6 +132,12 @@ List of pre-defined events (to be used in -e):
 
 
 ## b) perf top
+
+> ~$  sudo perf top 
+
+![perftop](perftop.png)
+
+
 
 ## c) perf record
 
