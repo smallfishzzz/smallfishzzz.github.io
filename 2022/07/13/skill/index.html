@@ -20,26 +20,28 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"smallfishzzz.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.12.2","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
 
-    <meta name="description" content="一个打工仔">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Small fish">
-<meta property="og:url" content="https://smallfishzzz.github.io/index.html">
+    <meta name="description" content="linux调试小技巧，帮助快速调试用户态程序或者内核态进程">
+<meta property="og:type" content="article">
+<meta property="og:title" content="linux调试小技巧">
+<meta property="og:url" content="https://smallfishzzz.github.io/2022/07/13/skill/index.html">
 <meta property="og:site_name" content="Small fish">
-<meta property="og:description" content="一个打工仔">
+<meta property="og:description" content="linux调试小技巧，帮助快速调试用户态程序或者内核态进程">
 <meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-07-13T06:16:43.000Z">
+<meta property="article:modified_time" content="2022-07-13T07:33:28.404Z">
 <meta property="article:author" content="ysj">
-<meta property="article:tag" content="kernel schedule xorg mesa">
+<meta property="article:tag" content="linux内核">
 <meta name="twitter:card" content="summary">
 
 
-<link rel="canonical" href="https://smallfishzzz.github.io/">
+<link rel="canonical" href="https://smallfishzzz.github.io/2022/07/13/skill/">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":true,"isPost":false,"lang":"zh-CN","comments":"","permalink":"","path":"index.html","title":""}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://smallfishzzz.github.io/2022/07/13/skill/","path":"2022/07/13/skill/","title":"linux调试小技巧"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>Small fish</title>
+<title>linux调试小技巧 | Small fish</title>
   
 
 
@@ -69,7 +71,7 @@
 
     <a href="/" class="brand" rel="start">
       <i class="logo-line"></i>
-      <h1 class="site-title">Small fish</h1>
+      <p class="site-title">Small fish</p>
       <i class="logo-line"></i>
     </a>
       <p class="site-subtitle" itemprop="description">已有知识,后必再有; 已学知识,后必再学</p>
@@ -102,7 +104,7 @@
 
   <aside class="sidebar">
 
-    <div class="sidebar-inner sidebar-overview-active">
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
       <ul class="sidebar-nav">
         <li class="sidebar-nav-toc">
           文章目录
@@ -115,6 +117,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%97%B6%E9%97%B4%E7%BB%9F%E8%AE%A1"><span class="nav-number">1.</span> <span class="nav-text">时间统计</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%94%A8%E6%88%B7%E6%80%81%E6%97%B6%E9%97%B4%E7%BB%9F%E8%AE%A1%EF%BC%9A"><span class="nav-number">1.1.</span> <span class="nav-text">用户态时间统计：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%85%E6%A0%B8%E6%80%81%E6%97%B6%E9%97%B4%E7%BB%9F%E8%AE%A1"><span class="nav-number">1.2.</span> <span class="nav-text">内核态时间统计</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%AE%BE%E7%BD%AE%E8%BF%9B%E7%A8%8B%E4%BA%B2%E5%92%8C%E6%80%A7"><span class="nav-number">2.</span> <span class="nav-text">设置进程亲和性</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -175,16 +178,17 @@
 </noscript>
 
 
-    <div class="main-inner index posts-expand">
+    <div class="main-inner post posts-expand">
 
-    
+
+  
 
 
 <div class="post-block">
   
   
 
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://smallfishzzz.github.io/2022/07/13/skill/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -198,13 +202,13 @@
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="undefined | Small fish">
+      <meta itemprop="name" content="linux调试小技巧 | Small fish">
       <meta itemprop="description" content="">
     </span>
       <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2022/07/13/skill/" class="post-title-link" itemprop="url">linux调试小技巧</a>
-        </h2>
+        <h1 class="post-title" itemprop="name headline">
+          linux调试小技巧
+        </h1>
 
         <div class="post-meta-container">
           <div class="post-meta">
@@ -228,6 +232,13 @@
     </span>
 
   
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
 </div>
 
         </div>
@@ -237,16 +248,24 @@
     
     
     <div class="post-body" itemprop="articleBody">
-          <p>linux调试小技巧，帮助快速调试用户态程序或者内核态进程</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/07/13/skill/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
+        <p>linux调试小技巧，帮助快速调试用户态程序或者内核态进程</p>
+<span id="more"></span>
+
+
+
+<h1 id="时间统计"><a href="#时间统计" class="headerlink" title="时间统计"></a>时间统计</h1><h2 id="用户态时间统计："><a href="#用户态时间统计：" class="headerlink" title="用户态时间统计："></a>用户态时间统计：</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">NAME</span><br><span class="line">       gettimeofday, settimeofday - get / <span class="built_in">set</span> time</span><br><span class="line">SYNOPSIS</span><br><span class="line">       <span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/time.h&gt;</span></span></span><br><span class="line"></span><br><span class="line">       <span class="type">int</span> <span class="title function_">gettimeofday</span><span class="params">(<span class="keyword">struct</span> timeval *tv, <span class="keyword">struct</span> timezone *tz)</span>;</span><br><span class="line">       <span class="type">int</span> <span class="title function_">settimeofday</span><span class="params">(<span class="type">const</span> <span class="keyword">struct</span> timeval *tv, <span class="type">const</span> <span class="keyword">struct</span> timezone *tz)</span>;</span><br><span class="line"></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">timeval</span> &#123;</span></span><br><span class="line">               <span class="type">time_t</span>      tv_sec;     <span class="comment">/* seconds */</span></span><br><span class="line">               <span class="type">suseconds_t</span> tv_usec;    <span class="comment">/* microseconds */</span></span><br><span class="line">           &#125;;</span><br><span class="line"></span><br><span class="line">           <span class="class"><span class="keyword">struct</span> <span class="title">timezone</span> &#123;</span></span><br><span class="line">               <span class="type">int</span> tz_minuteswest;     <span class="comment">/* minutes west of Greenwich */</span></span><br><span class="line">               <span class="type">int</span> tz_dsttime;         <span class="comment">/* type of DST correction */</span></span><br><span class="line">           &#125;;</span><br><span class="line">------------------------------------------------------------------------------</span><br><span class="line">例：</span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/time.h&gt;</span></span></span><br><span class="line"><span class="type">unsigned</span> <span class="type">long</span> <span class="title function_">gettime</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">timeval</span> <span class="title">time</span>;</span></span><br><span class="line">	gettimeofday(&amp;time,<span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> (time.tv_sec * <span class="number">1000000</span> + time.tv_usec);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="内核态时间统计"><a href="#内核态时间统计" class="headerlink" title="内核态时间统计"></a>内核态时间统计</h2><blockquote>
+<p>jiffies  或者  ktime_get()</p>
+</blockquote>
+<h1 id="设置进程亲和性"><a href="#设置进程亲和性" class="headerlink" title="设置进程亲和性"></a>设置进程亲和性</h1><p>a) taskset   </p>
+<p>b)numctl</p>
+<p>c)代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> _GNU_SOURCE</span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">bind_cpu</span><span class="params">(<span class="type">int</span> pid, <span class="type">int</span> cpu)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="type">int</span> ret;</span><br><span class="line">	<span class="type">cpu_set_t</span> mask;</span><br><span class="line">	CPU_ZERO(&amp;mask);</span><br><span class="line">	CPU_SET(cpu, &amp;mask);</span><br><span class="line">	ret = sched_setaffinity(pid, <span class="keyword">sizeof</span>(mask), &amp;mask);</span><br><span class="line">    </span><br><span class="line">	<span class="keyword">if</span>(ret &lt; <span class="number">0</span>)&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;set affinity failed [%d]\n&quot;</span>, ret);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;bind to %d success \n&quot;</span>, cpu);</span><br><span class="line">	<span class="keyword">return</span> ret;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+
     </div>
 
     
@@ -254,193 +273,47 @@
     
 
     <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
+          <div class="reward-container">
+  <div>疯狂暗示</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/true" alt="ysj enable">
+        <span>enable</span>
+      </div>
+      <div>
+        <img src="/%E7%96%AF%E7%8B%82%E6%9A%97%E7%A4%BA" alt="ysj comment">
+        <span>comment</span>
+      </div>
+      <div>
+        <img src="/images/wechatpay.png" alt="ysj 微信">
+        <span>微信</span>
+      </div>
+
+  </div>
 </div>
 
+          <div class="post-tags">
+              <a href="/tags/linux%E5%86%85%E6%A0%B8/" rel="tag"># linux内核</a>
+          </div>
 
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://smallfishzzz.github.io/2022/07/12/task-schedule/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="ysj">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Small fish">
-      <meta itemprop="description" content="一个打工仔">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="undefined | Small fish">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2022/07/12/task-schedule/" class="post-title-link" itemprop="url">进程管理 -- 调度</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-      
-
-      <time title="创建时间：2022-07-12 14:55:54 / 修改时间：17:25:30" itemprop="dateCreated datePublished" datetime="2022-07-12T14:55:54+08:00">2022-07-12</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">分类于</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/linux-%E5%86%85%E6%A0%B8%E4%BB%A3%E7%A0%81%E9%98%85%E8%AF%BB/" itemprop="url" rel="index"><span itemprop="name">linux 内核代码阅读</span></a>
-        </span>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>#深入分析内核调度过程<br>内核版本4.19.0</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"> ____       _              _       _      </span><br><span class="line">/ ___|  ___| |__   ___  __| |_   _| | ___ </span><br><span class="line">\___ \ / __| &#x27;_ \ / _ \/ _` | | | | |/ _ \</span><br><span class="line"> ___) | (__| | | |  __/ (_| | |_| | |  __/</span><br><span class="line">|____/ \___|_| |_|\___|\__,_|\__,_|_|\___|</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<h1 id="一、什么是内核调度"><a href="#一、什么是内核调度" class="headerlink" title="一、什么是内核调度"></a>一、什么是内核调度</h1><p> 在2.6内核之前Linux采用传统的UNIX调度算法。由于没有考虑到SMP，所以SMP不支持。从2.6内核之后调度器再一次的大的改动。2.6.23的版本中，完全公平调度器（CFS）最终成为Linux调度算法。Linux的进程调度基于调度类。每个调度类都有一个特定优先级。每一个不同的调度类，都有不同的调度算法，就是为了满足不同的需要。这表示对CPU的占用时间由操作系统决定的，具体为操作系统中的调度器。调度器决定了什么时候停止一个进程以便让其他进程有机会运行，同时挑选出一个其他的进程开始运行。且内核必须提供一种方法，让各个进程之间能够公平的使用CPU，并且还要考虑到不同场景下不同任务的优先级。</p>
-<p> schedule();函数就是内核使用最频繁的调用函数之一，也是理解调度操作的起点，该函数定义位置在<code>kernel/sched/core.c</code><br>下面我们暂时先忽略实时进程，只考虑完全公平调度CFS。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/07/12/task-schedule/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
         
-      
-    </div>
 
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://smallfishzzz.github.io/2022/07/11/perf/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="ysj">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Small fish">
-      <meta itemprop="description" content="一个打工仔">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="undefined | Small fish">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2022/07/11/perf/" class="post-title-link" itemprop="url">linux perf 使用</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2022-07-11 15:40:50" itemprop="dateCreated datePublished" datetime="2022-07-11T15:40:50+08:00">2022-07-11</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2022-07-12 14:41:01" itemprop="dateModified" datetime="2022-07-12T14:41:01+08:00">2022-07-12</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">分类于</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/linux-%E8%B0%83%E8%AF%95%E6%8A%80%E5%B7%A7/" itemprop="url" rel="index"><span itemprop="name">linux 调试技巧</span></a>
-        </span>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h1 id="1-perf工具"><a href="#1-perf工具" class="headerlink" title="1 perf工具"></a>1 perf工具</h1><p>​	 Perf是Linux kernel自带的系统性能优化工具。Perf的优势在于与Linux Kernel的紧密结合，它可以最先应用到加入Kernel的new feature。perf可以统计硬件相关的信息如cpu cache miss、tlb miss、ips等等，软件上可以查看代码执行热点函数、热点指令、cpu迁移、等等，从而帮助开发者来优化程序性能。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/07/11/perf/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/07/12/task-schedule/" rel="prev" title="进程管理 -- 调度">
+                  <i class="fa fa-chevron-left"></i> 进程管理 -- 调度
+                </a>
             </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
+            <div class="post-nav-item">
+            </div>
+          </div>
     </footer>
   </article>
 </div>
+
 
 
 
