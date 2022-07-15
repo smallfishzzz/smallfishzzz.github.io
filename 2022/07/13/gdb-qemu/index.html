@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 5.4.2">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha256-DfWjNxDkM94fVBWx1H5BMMp0Zq7luBlV8QRcSES7s+0=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"smallfishzzz.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.12.2","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="gdb + qemu 调试linux 内核">
+<meta property="og:type" content="article">
+<meta property="og:title" content="gdb+qemu调试linux内核">
+<meta property="og:url" content="https://smallfishzzz.github.io/2022/07/13/gdb-qemu/index.html">
+<meta property="og:site_name" content="Small fish">
+<meta property="og:description" content="gdb + qemu 调试linux 内核">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://smallfishzzz.github.io/2022/07/13/gdb-qemu/qemu-1.png">
+<meta property="article:published_time" content="2022-07-13T09:24:18.000Z">
+<meta property="article:modified_time" content="2022-07-15T07:42:02.303Z">
+<meta property="article:author" content="ysj">
+<meta property="article:tag" content="linux内核">
+<meta property="article:tag" content="gdb">
+<meta property="article:tag" content="qemu">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://smallfishzzz.github.io/2022/07/13/gdb-qemu/qemu-1.png">
+
+
+<link rel="canonical" href="https://smallfishzzz.github.io/2022/07/13/gdb-qemu/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://smallfishzzz.github.io/2022/07/13/gdb-qemu/","path":"2022/07/13/gdb-qemu/","title":"gdb+qemu调试linux内核"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>gdb+qemu调试linux内核 | Small fish</title>
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Small fish</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">已有知识,后必再有; 已学知识,后必再学</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">10</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">2</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">5</span></a></li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%90%AD%E5%BB%BA%E7%8E%AF%E5%A2%83"><span class="nav-number">1.</span> <span class="nav-text">搭建环境</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#archlinux-%E7%8E%AF%E5%A2%83"><span class="nav-number">1.1.</span> <span class="nav-text">archlinux 环境</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E8%A3%85libguestfs"><span class="nav-number">1.2.</span> <span class="nav-text">安装libguestfs</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%AF%E5%8A%A8libvirt%E6%9C%8D%E5%8A%A1"><span class="nav-number">1.3.</span> <span class="nav-text">启动libvirt服务</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E8%A3%85%E8%99%9A%E6%8B%9F%E6%9C%BA"><span class="nav-number">1.4.</span> <span class="nav-text">安装虚拟机</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%AF%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%AE%89%E8%A3%85iso"><span class="nav-number">1.5.</span> <span class="nav-text">纯命令行安装iso</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%90%AF%E5%8A%A8%E8%B0%83%E8%AF%95"><span class="nav-number">2.</span> <span class="nav-text">启动调试</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%AF%E5%8A%A8qemu%E8%99%9A%E6%8B%9F%E6%9C%BA"><span class="nav-number">2.1.</span> <span class="nav-text">启动qemu虚拟机</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8gdb-%E8%BF%9E%E6%8E%A5"><span class="nav-number">2.2.</span> <span class="nav-text">使用gdb 连接</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E8%87%AA%E5%B7%B1%E7%BC%96%E8%AF%91%E7%9A%84%E5%86%85%E6%A0%B8%E5%90%AF%E5%8A%A8"><span class="nav-number">2.3.</span> <span class="nav-text">使用自己编译的内核启动</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%8E%B7%E5%8F%96debian-img-%E7%9A%84initrd%EF%BC%8C-grub%E5%8F%82%E6%95%B0"><span class="nav-number">2.3.1.</span> <span class="nav-text">获取debian.img 的initrd， grub参数</span></a></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">ysj</p>
+  <div class="site-description" itemprop="description">一个打工仔</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/smallfishzzz" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;smallfishzzz" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
+  <div class="cc-license site-overview-item animated" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="https://cdnjs.cloudflare.com/ajax/libs/creativecommons-vocabulary/2020.11.3/assets/license_badges/small/by_nc_sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://smallfishzzz.github.io/2022/07/13/gdb-qemu/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="ysj">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Small fish">
+      <meta itemprop="description" content="一个打工仔">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="gdb+qemu调试linux内核 | Small fish">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          gdb+qemu调试linux内核
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2022-07-13 17:24:18" itemprop="dateCreated datePublished" datetime="2022-07-13T17:24:18+08:00">2022-07-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2022-07-15 15:42:02" itemprop="dateModified" datetime="2022-07-15T15:42:02+08:00">2022-07-15</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/linux-%E8%B0%83%E8%AF%95%E6%8A%80%E5%B7%A7/" itemprop="url" rel="index"><span itemprop="name">linux 调试技巧</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>gdb + qemu 调试linux 内核</p>
+<span id="more"></span>
+
+<h1 id="搭建环境"><a href="#搭建环境" class="headerlink" title="搭建环境"></a>搭建环境</h1><h2 id="archlinux-环境"><a href="#archlinux-环境" class="headerlink" title="archlinux 环境"></a>archlinux 环境</h2><p>安装kvm，qemu，libvirt, ovmf, virt-manager 等等</p>
+<blockquote>
+<p>sudo pacman -S qemu libvirt ovmf virt-manager virt-viewer dnsmasq vde2 bridge-utils openbsd-netcat  dmidecode   ebtables iptables  gdb</p>
+</blockquote>
+<h2 id="安装libguestfs"><a href="#安装libguestfs" class="headerlink" title="安装libguestfs"></a>安装libguestfs</h2><p>用于访问修改虚拟机vm 磁盘映像的工具(前提要配置AUR源,并安装 yaourt 或者 yay)</p>
+<blockquote>
+<p>yay -S libguestfs</p>
+</blockquote>
+<h2 id="启动libvirt服务"><a href="#启动libvirt服务" class="headerlink" title="启动libvirt服务"></a>启动libvirt服务</h2><blockquote>
+<p>sudo systemctl enable   libvirtd.service  </p>
+<p>sudo systemctl start   libvirtd.service</p>
+</blockquote>
+<h2 id="安装虚拟机"><a href="#安装虚拟机" class="headerlink" title="安装虚拟机"></a>安装虚拟机</h2><p>安装好 qemu 后自带有qemu-img 命令， 使用qemu-img 创建一个镜像  -f 是指定镜像格式这里使用qcow2 </p>
+<blockquote>
+<p>qemu-img  create  debian.img  -f qcow2  40 G</p>
+<p>qemu-img info debian.img</p>
+</blockquote>
+<h2 id="纯命令行安装iso"><a href="#纯命令行安装iso" class="headerlink" title="纯命令行安装iso"></a>纯命令行安装iso</h2><p>将iso 挂载上，由于没有图形界面，所以需要提取iso的 内核文件和根文件系统</p>
+<blockquote>
+<p>mkdir  .&#x2F;mnt<br>mount -o loop  .&#x2F;xxx.iso   .&#x2F;mnt</p>
+</blockquote>
+<p>安装 </p>
+<blockquote>
+<p>qemu-system-x86_64 -m 4096M -smp 4 -boot c -cpu host -hda .&#x2F;debian.img –enable-kvm –nographic    -append console&#x3D;ttyS0  -cdrom .&#x2F;xxxiso <br>-kernel .&#x2F;tmp&#x2F;install.amd&#x2F;vmlinuz  <br> -initrd    .&#x2F;tmp&#x2F;install.amd&#x2F;initrd.gz  </p>
+</blockquote>
+<p>-m 指定虚拟机内存内存大小，默认单位是MB，</p>
+<p>-boot  -d:启动顺序，哪个设备先启动,-d代表先从cd-rom启动，然后驱动从硬盘镜像正常启动。-c选项从硬盘镜像先启动。</p>
+<p>-enable-kvm使用KVM进行加速</p>
+<p>-smp 4: 虚拟机有4个vcpu，设置有几个核来模拟操作系统</p>
+<p>-net nic -net user:默认启用运行虚拟机中的以太网链接</p>
+<p>-hda testing-image.img:指定使用的硬件驱动的路径（之前创建的镜像路径）</p>
+<p>-cdrom ubuntu-16.04.iso:最后告诉qemu从iso文件中启动系统</p>
+<p>-cdrom添加fedora的安装镜像。可在弹出的窗口中操作虚拟机（如果有图形界面），安装操作系统，安装完成后重起虚拟机便会从硬盘(test.qcow2)启动。</p>
+<p>-nographic -append console&#x3D;ttyS0 : Redirectstandard output to host machine</p>
+<p>重定向输出参数，如果不指定ttyS0则将无法在当前窗口看到安装过程，当然，有时候需要调整console参数才能在当前窗口查看到信息。为了使用户能以root身份通过串口登录，需要在该文件中添加“ttyS0”，说明系统认为这里的COM1是安全的</p>
+<p>–kernel    使用哪个内核  （每个iso放的位置都不一样， 具体用find 搜一下在那）</p>
+<p>–initrd    使用哪个initrd</p>
+<blockquote>
+<p> 安装后kill 掉， 我也不知道咋退出来</p>
+</blockquote>
+<blockquote>
+<p> debootstrap 也可以构建根文件系统，但是感觉有很多问题，没仔细去研究</p>
+</blockquote>
+<h1 id="启动调试"><a href="#启动调试" class="headerlink" title="启动调试"></a>启动调试</h1><h2 id="启动qemu虚拟机"><a href="#启动qemu虚拟机" class="headerlink" title="启动qemu虚拟机"></a>启动qemu虚拟机</h2><p>qemu 启动刚刚装好的img，–nographic 意思是文字界面的，在终端上打开, -s 提供本地端口1234（default） 给gdb 远程用， -S 是在启动的时候断住， 其他参数参数大概就字面意思， 命令运行后不会有什么反应，就是因为-S 断住了。</p>
+<blockquote>
+<p>qemu-system-x86_64 -enable-kvm \<br>    -m 4096M            <br>    -smp 4              <br>    –nographic         <br>    -hda .&#x2F;debian.img   <br>    -s -S</p>
+</blockquote>
+<h2 id="使用gdb-连接"><a href="#使用gdb-连接" class="headerlink" title="使用gdb 连接"></a>使用gdb 连接</h2><p>netstat  -nap |grep 1234  可以看到有qemu的端口是否已经打开，打开就说明ok了</p>
+<blockquote>
+<p> gdb .&#x2F;tmp&#x2F;install.amd&#x2F;vmlinuz     </p>
+</blockquote>
+<p>因为vmlinux 是无符号的，所以这里看不出来有什么信息，</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">Reading symbols from ./vmlinuz<span class="number">-5.10</span><span class="number">.0</span><span class="number">-15</span>-amd64...</span><br><span class="line">(No debugging symbols found in ./vmlinuz<span class="number">-5.10</span><span class="number">.0</span><span class="number">-15</span>-amd64)</span><br><span class="line">(gdb) target remote:<span class="number">1234</span></span><br><span class="line">Remote debugging using :<span class="number">1234</span></span><br><span class="line"><span class="number">0x000000000000fff0</span> in ?? ()</span><br><span class="line">(gdb) bt</span><br><span class="line">#<span class="number">0</span>  <span class="number">0x000000000000fff0</span> in ?? ()</span><br><span class="line">#<span class="number">1</span>  <span class="number">0x0000000000000000</span> in ?? ()</span><br><span class="line">(gdb) c</span><br><span class="line">Continuing.</span><br><span class="line">    </span><br></pre></td></tr></table></figure>
+
+<p> 再按c 就可以继续运行了，同时虚拟机这边也会继续运行,gdb 这边也可以继续使用</p>
+<img src="/2022/07/13/gdb-qemu/qemu-1.png" alt="qemu-1" style="zoom: 67%;">
+
+
+
+<blockquote>
+<p> 但是！！！， 这都没符号啊，我调毛线</p>
+</blockquote>
+<h2 id="使用自己编译的内核启动"><a href="#使用自己编译的内核启动" class="headerlink" title="使用自己编译的内核启动"></a>使用自己编译的内核启动</h2><blockquote>
+<p>这里问了一个不愿意透露姓名的大佬(Lonely Wind Wolf)，好像整个过程都是请教大佬的，但是没办法，我写的史记我做主</p>
+</blockquote>
+<h3 id="获取debian-img-的initrd，-grub参数"><a href="#获取debian-img-的initrd，-grub参数" class="headerlink" title="获取debian.img 的initrd， grub参数"></a>获取debian.img 的initrd， grub参数</h3><p>获取qcow2 img 里面的内容， qcow2 格式的文件不能够直接挂</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sudo modprobe nbd</span><br><span class="line">sudo qemu-nbd -c /dev/nbd0 --read-only /path/to/debian.img</span><br><span class="line">udisksctl mount -b /dev/nbd0p1</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>这里会告诉你挂在在哪个位置,进去然后找到boot 目录，将initrd 文件拷贝出来， 并将grub.cfg 的cmdline内容拷贝出来，主要是用的uuid,  这里拷贝的是initrd.img-5.10.0-15-amd64  ， uuid 用的是6e2a155d-caba-4aae-97cb-fcdf73f18935 </p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">➜  <span class="number">6e2</span>a155d-caba<span class="number">-4</span>aae<span class="number">-97</span>cb-fcdf73f18935 cd boot </span><br><span class="line">➜  boot ls</span><br><span class="line">config<span class="number">-5.10</span><span class="number">.0</span><span class="number">-13</span>-amd64  initrd.img<span class="number">-5.10</span><span class="number">.0</span><span class="number">-13</span>-amd64  System.<span class="built_in">map</span><span class="number">-5.10</span><span class="number">.0</span><span class="number">-15</span>-amd64</span><br><span class="line">config<span class="number">-5.10</span><span class="number">.0</span><span class="number">-15</span>-amd64  initrd.img<span class="number">-5.10</span><span class="number">.0</span><span class="number">-15</span>-amd64  vmlinuz<span class="number">-5.10</span><span class="number">.0</span><span class="number">-13</span>-amd64</span><br><span class="line">grub                    System.<span class="built_in">map</span><span class="number">-5.10</span><span class="number">.0</span><span class="number">-13</span>-amd64  vmlinuz<span class="number">-5.10</span><span class="number">.0</span><span class="number">-15</span>-amd64</span><br><span class="line">➜  boot cd grub </span><br><span class="line">➜  grub ls</span><br><span class="line">fonts  grub.cfg  grubenv  i386-pc  locale  unicode.pf2</span><br><span class="line">➜  grub cat grub.cfg |grep <span class="string">&quot;root=UUID&quot;</span> </span><br><span class="line">	linux	/boot/vmlinuz<span class="number">-5.10</span><span class="number">.0</span><span class="number">-15</span>-amd64 root=UUID=<span class="number">6e2</span>a155d-caba<span class="number">-4</span>aae<span class="number">-97</span>cb-fcdf73f18935 ro  quiet</span><br><span class="line">		linux	/boot/vmlinuz<span class="number">-5.10</span><span class="number">.0</span><span class="number">-15</span>-amd64 root=UUID=<span class="number">6e2</span>a155d-caba<span class="number">-4</span>aae<span class="number">-97</span>cb-fcdf73f18935 ro  quiet</span><br><span class="line"></span><br><span class="line">➜  grub </span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>编译内核，找到bzImage, 再简单的修改一下 qemu启动参数，大概是这个样子：</p>
+<blockquote>
+<p>qemu-system-x86_64 -enable-kvm <br>        -m 4096M  <br>        -smp 4 <br>        -nographic  <br>        -kernel   .&#x2F;arch&#x2F;x86&#x2F;boot&#x2F;bzImage   <br>        -initrd .&#x2F;initrd.img-5.10.0-15-amd64 <br>        -append “ console&#x3D;ttyS0 nokaslr  root&#x3D;UUID&#x3D;6e2a155d-caba-4aae-97cb-fcdf73f18935 “ <br>        -hda   .&#x2F;debian.img  <br>        -s -S                                                                                       </p>
+</blockquote>
+<p>然后运行qemu， 启动gdb重复前面的步骤连接上虚拟机就ok了</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">(gdb) target remote:<span class="number">1234</span></span><br><span class="line">Remote debugging using :<span class="number">1234</span></span><br><span class="line"><span class="number">0x000000000000fff0</span> in <span class="title function_">exception_stacks</span> <span class="params">()</span></span><br><span class="line"><span class="params">(gdb)</span> bt </span><br><span class="line">#0  0x000000000000fff0 in <span class="title function_">exception_stacks</span> <span class="params">()</span></span><br><span class="line">#1  0x0000000000000000 in ?? <span class="params">()</span></span><br><span class="line"><span class="params">(gdb)</span> c</span><br><span class="line">Continuing.</span><br><span class="line">^C</span><br><span class="line">Thread 1 received signal SIGINT, Interrupt.</span><br><span class="line">0xffffffff81bb296e in <span class="title function_">default_idle</span> <span class="params">()</span></span><br><span class="line"><span class="params">(gdb)</span> bt </span><br><span class="line">#0  0xffffffff81bb296e in <span class="title function_">default_idle</span> <span class="params">()</span></span><br><span class="line">#1  0xffffffff81bb2b1d in <span class="title function_">default_idle_call</span> <span class="params">()</span></span><br><span class="line">#2  0xffffffff8109a84f in <span class="title function_">do_idle</span> <span class="params">()</span></span><br><span class="line">#3  0xffffffff8109a672 in <span class="title function_">do_idle</span> <span class="params">()</span></span><br><span class="line">#4  0x4e9ed763dcb1d700 in ?? <span class="params">()</span></span><br><span class="line">#5  0xffff8880bffdf523 in ?? <span class="params">()</span></span><br><span class="line">#6  0x00000000000000e0 in ?? <span class="params">()</span></span><br><span class="line">#7  0x0000000000000048 in ?? <span class="params">()</span></span><br><span class="line"><span class="params">(gdb)</span></span><br></pre></td></tr></table></figure>
+
+<p>现在可以开始大调特调了 ～～ </p>
+<p>引用:</p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/u011795345/article/details/78681213">https://blog.csdn.net/u011795345/article/details/78681213</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>疯狂暗示</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/true" alt="ysj enable">
+        <span>enable</span>
+      </div>
+      <div>
+        <img src="/%E7%96%AF%E7%8B%82%E6%9A%97%E7%A4%BA" alt="ysj comment">
+        <span>comment</span>
+      </div>
+      <div>
+        <img src="/images/wechatpay.png" alt="ysj 微信">
+        <span>微信</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/linux%E5%86%85%E6%A0%B8/" rel="tag"># linux内核</a>
+              <a href="/tags/gdb/" rel="tag"># gdb</a>
+              <a href="/tags/qemu/" rel="tag"># qemu</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/07/13/task-create/" rel="prev" title="linux内核进程创建">
+                  <i class="fa fa-chevron-left"></i> linux内核进程创建
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Small fish</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">false</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"model":{"jsonPath":"/live2dw/assets/shizuku.model.json"},"display":{"position":"right","width":300,"height":600},"mobile":{"show":false},"log":false});</script></body>
+</html>
