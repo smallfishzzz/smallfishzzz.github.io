@@ -20,31 +20,35 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"smallfishzzz.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.12.2","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
 
-    <meta name="description" content="一个打工仔">
+    <meta name="description" content="1  进程创建过程，如何让进程去运行，过程中的状态，以及如何退出。  Kernel Version 4.19">
 <meta property="og:type" content="article">
-<meta property="og:title" content="linux内核进程创建">
+<meta property="og:title" content="linux内核进程的一生">
 <meta property="og:url" content="https://smallfishzzz.github.io/2022/07/13/task-create/index.html">
 <meta property="og:site_name" content="Small fish">
-<meta property="og:description" content="一个打工仔">
+<meta property="og:description" content="1  进程创建过程，如何让进程去运行，过程中的状态，以及如何退出。  Kernel Version 4.19">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://smallfishzzz.github.io/2022/07/13/task-create/psa.png">
+<meta property="og:image" content="https://smallfishzzz.github.io/2022/07/13/task-create/image-20220718154845935.png">
 <meta property="article:published_time" content="2022-07-13T09:20:07.000Z">
-<meta property="article:modified_time" content="2022-07-14T02:24:20.704Z">
+<meta property="article:modified_time" content="2022-07-19T03:23:24.003Z">
 <meta property="article:author" content="ysj">
 <meta property="article:tag" content="linux内核">
 <meta property="article:tag" content="fork">
 <meta property="article:tag" content="idle">
-<meta property="article:tag" content="init">
+<meta property="article:tag" content="task">
+<meta property="article:tag" content="进程管理">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://smallfishzzz.github.io/2022/07/13/task-create/psa.png">
 
 
 <link rel="canonical" href="https://smallfishzzz.github.io/2022/07/13/task-create/">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://smallfishzzz.github.io/2022/07/13/task-create/","path":"2022/07/13/task-create/","title":"linux内核进程创建"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://smallfishzzz.github.io/2022/07/13/task-create/","path":"2022/07/13/task-create/","title":"linux内核进程的一生"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>linux内核进程创建 | Small fish</title>
+<title>linux内核进程的一生 | Small fish</title>
   
 
 
@@ -89,7 +93,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">10</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">2</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">5</span></a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">11</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">2</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">5</span></a></li>
   </ul>
 </nav>
 
@@ -107,7 +111,7 @@
 
   <aside class="sidebar">
 
-    <div class="sidebar-inner sidebar-overview-active">
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
       <ul class="sidebar-nav">
         <li class="sidebar-nav-toc">
           文章目录
@@ -120,6 +124,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BF%9B%E7%A8%8B%E7%BB%93%E6%9E%84%E4%BD%93"><span class="nav-number">1.</span> <span class="nav-text">进程结构体</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#task-struct"><span class="nav-number">1.1.</span> <span class="nav-text">task_struct</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BF%9B%E7%A8%8B%E5%88%9B%E5%BB%BA"><span class="nav-number">2.</span> <span class="nav-text">进程创建</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#idle-%E8%BF%9B%E7%A8%8B%E7%9A%84%E5%88%9B%E5%BB%BA"><span class="nav-number">2.1.</span> <span class="nav-text">idle 进程的创建</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%94%A8%E6%88%B7%E6%80%81%E8%BF%9B%E7%A8%8B%E5%88%9B%E5%BB%BA"><span class="nav-number">2.2.</span> <span class="nav-text">用户态进程创建</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%85%E6%A0%B8%E7%BA%BF%E7%A8%8B%E7%9A%84%E5%88%9B%E5%BB%BA"><span class="nav-number">2.3.</span> <span class="nav-text">内核线程的创建</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#do-fork"><span class="nav-number">2.4.</span> <span class="nav-text">_do_fork</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#copy-thread-tls"><span class="nav-number">2.5.</span> <span class="nav-text">copy_thread_tls</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ret-from-fork"><span class="nav-number">2.6.</span> <span class="nav-text">ret_from_fork</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BF%9B%E7%A8%8B%E7%8A%B6%E6%80%81"><span class="nav-number">3.</span> <span class="nav-text">进程状态</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%85%E6%A0%B8%E4%B8%AD%E7%8A%B6%E6%80%81%E7%9A%84%E5%AE%9A%E4%B9%89"><span class="nav-number">3.1.</span> <span class="nav-text">内核中状态的定义</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%94%A8%E6%88%B7%E5%B1%82%E7%9C%8B%E5%88%B0%E7%9A%84%E8%BF%9B%E7%A8%8B%E7%8A%B6%E6%80%81"><span class="nav-number">3.2.</span> <span class="nav-text">用户层看到的进程状态</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%B3%BB%E7%BB%9F%E4%B8%AD%E5%B8%B8%E8%A7%81%E7%9A%84%E7%8A%B6%E6%80%81%EF%BC%9A"><span class="nav-number">3.3.</span> <span class="nav-text">系统中常见的状态：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%9B%E7%A8%8B%E7%8A%B6%E6%80%81%E7%9A%84%E5%88%87%E6%8D%A2"><span class="nav-number">3.4.</span> <span class="nav-text">进程状态的切换</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BF%9B%E7%A8%8B%E8%BF%90%E8%A1%8C"><span class="nav-number">4.</span> <span class="nav-text">进程运行</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BF%9B%E7%A8%8B%E9%80%80%E5%87%BA"><span class="nav-number">5.</span> <span class="nav-text">进程退出</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -143,7 +148,7 @@
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-count">11</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -204,12 +209,12 @@
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="linux内核进程创建 | Small fish">
+      <meta itemprop="name" content="linux内核进程的一生 | Small fish">
       <meta itemprop="description" content="">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          linux内核进程创建
+          linux内核进程的一生
         </h1>
 
         <div class="post-meta-container">
@@ -227,7 +232,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2022-07-14 10:24:20" itemprop="dateModified" datetime="2022-07-14T10:24:20+08:00">2022-07-14</time>
+      <time title="修改时间：2022-07-19 11:23:24" itemprop="dateModified" datetime="2022-07-19T11:23:24+08:00">2022-07-19</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -256,7 +261,71 @@
     
     
     <div class="post-body" itemprop="articleBody">
-        
+        <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>进程创建过程，如何让进程去运行，过程中的状态，以及如何退出。 </p>
+<p>Kernel Version 4.19</p>
+<span id="more"></span>
+
+<p>基于4.19 内核</p>
+<h1 id="进程结构体"><a href="#进程结构体" class="headerlink" title="进程结构体"></a>进程结构体</h1><h2 id="task-struct"><a href="#task-struct" class="headerlink" title="task_struct"></a>task_struct</h2><p>include&#x2F;linux&#x2F;sched.h</p>
+<p>TODO:</p>
+<h1 id="进程创建"><a href="#进程创建" class="headerlink" title="进程创建"></a>进程创建</h1><h2 id="idle-进程的创建"><a href="#idle-进程的创建" class="headerlink" title="idle 进程的创建"></a>idle 进程的创建</h2><p>TODO:</p>
+<h2 id="用户态进程创建"><a href="#用户态进程创建" class="headerlink" title="用户态进程创建"></a>用户态进程创建</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">SYSCALL_DEFINE0(fork)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> _do_fork(SIGCHLD, <span class="number">0</span>, <span class="number">0</span>, <span class="literal">NULL</span>, <span class="literal">NULL</span>, <span class="number">0</span>);</span><br><span class="line">&#125;</span><br><span class="line">SYSCALL_DEFINE0(vfork)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> _do_fork(CLONE_VFORK | CLONE_VM | SIGCHLD, <span class="number">0</span>,</span><br><span class="line">            <span class="number">0</span>, <span class="literal">NULL</span>, <span class="literal">NULL</span>, <span class="number">0</span>);</span><br><span class="line">&#125;</span><br><span class="line">SYSCALL_DEFINE5(clone, <span class="type">unsigned</span> <span class="type">long</span>, clone_flags, <span class="type">unsigned</span> <span class="type">long</span>, newsp,</span><br><span class="line">         <span class="type">int</span> __user *, parent_tidptr,</span><br><span class="line">         <span class="type">int</span> __user *, child_tidptr,</span><br><span class="line">         <span class="type">unsigned</span> <span class="type">long</span>, tls)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> _do_fork(clone_flags, newsp, <span class="number">0</span>, parent_tidptr, child_tidptr, tls);</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="内核线程的创建"><a href="#内核线程的创建" class="headerlink" title="内核线程的创建"></a>内核线程的创建</h2><p>内核线程的创建和用户态进程的创建都是调用的_do_fork，不同的是内核线程需要指定函数执行地址fn(参数2)，而用户态的不需要，那么都是调用 _do_fork，他们分别是怎么处理的，两种进程又是怎么运行的？</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">通用接口</span><br><span class="line"><span class="meta">#<span class="keyword">define</span> kthread_create(threadfn, data, namefmt, arg...) \</span></span><br><span class="line"><span class="meta">    kthread_create_on_node(threadfn, data, NUMA_NO_NODE, namefmt, ##arg)</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> kthread_run(threadfn, data, namefmt, ...)              \</span></span><br><span class="line"><span class="meta">(&#123;                                     \</span></span><br><span class="line"><span class="meta">    struct task_struct *__k                        \</span></span><br><span class="line"><span class="meta">        = kthread_create(threadfn, data, namefmt, ## __VA_ARGS__); \</span></span><br><span class="line"><span class="meta">    <span class="keyword">if</span> (!IS_ERR(__k))                          \</span></span><br><span class="line"><span class="meta">        wake_up_process(__k);                      \</span></span><br><span class="line"><span class="meta">    __k;                                   \</span></span><br><span class="line"><span class="meta">&#125;)</span></span><br><span class="line">    </span><br><span class="line"><span class="comment">//  kthreaed_create kthread_run 都会调用到 kthread_thread,</span></span><br><span class="line"><span class="comment">//上面的都是两个封装</span></span><br><span class="line">    </span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * Create a kernel thread.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="type">pid_t</span> <span class="title function_">kernel_thread</span><span class="params">(<span class="type">int</span> (*fn)(<span class="type">void</span> *), <span class="type">void</span> *arg, <span class="type">unsigned</span> <span class="type">long</span> flags)</span>         </span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> _do_fork(flags|CLONE_VM|CLONE_UNTRACED, (<span class="type">unsigned</span> <span class="type">long</span>)fn,</span><br><span class="line">        (<span class="type">unsigned</span> <span class="type">long</span>)arg, <span class="literal">NULL</span>, <span class="literal">NULL</span>, <span class="number">0</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>不管是 kthread_run 还是kthread_create 都会唤醒一个kthread的内核线程去调用kernel_thread 函数创建线程，然后同步返回，不同的就是kthread_run 最后会有一个唤醒（就是立马放到cpu运行队列上）而kthread_create是不会被执行的。</p>
+<p>&lt;那个kthread的线程一直在kthreadd函数里死循环，等待消息来创建新的线程 &gt;</p>
+</blockquote>
+<h2 id="do-fork"><a href="#do-fork" class="headerlink" title="_do_fork"></a>_do_fork</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">_do_fork()</span><br><span class="line">	|--&gt; copy_process()</span><br><span class="line">	|	|--&gt; dup_task_struct() 申请task结构体、栈空间，存放的内存与父进程在同一个node上</span><br><span class="line">	|	|--&gt; 初始化task结构体的变量</span><br><span class="line">	|	\--&gt; 根据clone_flags 选择性copy 父进程的内容（默认是有父进程的cpu、fs、fd、sig等）</span><br><span class="line">	\--&gt; wake_up_new_task()  <span class="number">1</span>、给进程选择一个新的cpu，并将进程放到该cpu的运行队列上（选择cpu是考虑负载的原因，尽可能给进程分配一个空闲的cpu，能够快速被调度执行）</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="copy-thread-tls"><a href="#copy-thread-tls" class="headerlink" title="copy_thread_tls"></a>copy_thread_tls</h2><p>copy_thread_tls是执行copy_process 的最后一步，这里负责设新进程的上下文，栈，sp等等，如果新进程不是PF_KTHREAD 则表示新进程p不是个内核线程，只需要设置一下pc 和sp就行，如果是内核线程则需要设置一下栈起始地址（stack_start 就是传入的fn）。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">include/linux/sched.h:</span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PF_KTHREAD      0x00200000  <span class="comment">/* I am a kernel thread */</span></span></span><br><span class="line"></span><br><span class="line">arch/arm64/kernel/process.c:</span><br><span class="line"><span class="type">int</span> <span class="title function_">copy_thread</span><span class="params">(<span class="type">unsigned</span> <span class="type">long</span> clone_flags, <span class="type">unsigned</span> <span class="type">long</span> stack_start,</span></span><br><span class="line"><span class="params">        <span class="type">unsigned</span> <span class="type">long</span> stk_sz, <span class="keyword">struct</span> task_struct *p)</span></span><br><span class="line">&#123;</span><br><span class="line">		... ... </span><br><span class="line">    <span class="keyword">if</span> (likely(!(p-&gt;flags &amp; PF_KTHREAD))) &#123;</span><br><span class="line">		... ...  </span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">		... ...</span><br><span class="line">        p-&gt;thread.cpu_context.x19 = stack_start;</span><br><span class="line">        p-&gt;thread.cpu_context.x20 = stk_sz;</span><br><span class="line">    &#125;</span><br><span class="line">    p-&gt;thread.cpu_context.pc = (<span class="type">unsigned</span> <span class="type">long</span>)ret_from_fork;</span><br><span class="line">    p-&gt;thread.cpu_context.sp = (<span class="type">unsigned</span> <span class="type">long</span>)childregs;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="ret-from-fork"><a href="#ret-from-fork" class="headerlink" title="ret_from_fork"></a>ret_from_fork</h2><p>这里对内核线程和用户态进程做了区分，如果是内核线程则执行x19，这里放的就是指定的函数地址，如果是用户态进程则执行ret_to_user返回</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">ENTRY(ret_from_fork)</span><br><span class="line">    bl  schedule_tail                                </span><br><span class="line">    cbz x19, 1f             // not a kernel thread</span><br><span class="line">    mov x0, x20</span><br><span class="line">    blr x19</span><br><span class="line">1:  get_thread_info tsk</span><br><span class="line">    b   ret_to_user</span><br><span class="line">ENDPROC(ret_from_fork)</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<hr>
+</blockquote>
+<h1 id="进程状态"><a href="#进程状态" class="headerlink" title="进程状态"></a>进程状态</h1><h2 id="内核中状态的定义"><a href="#内核中状态的定义" class="headerlink" title="内核中状态的定义"></a>内核中状态的定义</h2><p>内核中代码定义如下： include&#x2F;linux&#x2F;sched.h </p>
+<p>常用的就是TASK_RUNNING， TASK_INTERRUPTIBLE， TASK_UNINTERRUPTIBLE ， EXIT_DEAD， TASK_WAKING， TASK_NEW , TASK_IDLE</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Used in tsk-&gt;state: */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> TASK_RUNNING            0x0000</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> TASK_INTERRUPTIBLE      0x0001</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> TASK_UNINTERRUPTIBLE        0x0002</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> __TASK_STOPPED          0x0004</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> __TASK_TRACED           0x0008</span></span><br><span class="line"><span class="comment">/* Used in tsk-&gt;exit_state: */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> EXIT_DEAD           0x0010</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> EXIT_ZOMBIE         0x0020</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> EXIT_TRACE          (EXIT_ZOMBIE | EXIT_DEAD)</span></span><br><span class="line"><span class="comment">/* Used in tsk-&gt;state again: */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> TASK_PARKED         0x0040</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> TASK_DEAD           0x0080</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> TASK_WAKEKILL           0x0100</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> TASK_WAKING         0x0200</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> TASK_NOLOAD         0x0400</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> TASK_NEW            0x0800</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> TASK_STATE_MAX          0x1000</span></span><br><span class="line"><span class="comment">/* Convenience macros for the sake of set_current_state: */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> TASK_KILLABLE           (TASK_WAKEKILL | TASK_UNINTERRUPTIBLE)</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> TASK_STOPPED            (TASK_WAKEKILL | __TASK_STOPPED)</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> TASK_TRACED         (TASK_WAKEKILL | __TASK_TRACED)</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> TASK_IDLE           (TASK_UNINTERRUPTIBLE | TASK_NOLOAD)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* Convenience macros for the sake of wake_up(): */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> TASK_NORMAL         (TASK_INTERRUPTIBLE | TASK_UNINTERRUPTIBLE)</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="用户层看到的进程状态"><a href="#用户层看到的进程状态" class="headerlink" title="用户层看到的进程状态"></a>用户层看到的进程状态</h2><blockquote>
+<p>man ps </p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">D (TASK_UNINTERRUPTIBLE) 	不可中断的睡眠状态</span><br><span class="line">I (TASK_IDLE) 	 	  	   idle 的内核线程</span><br><span class="line">R (TASK_RUNNING)				正在运行，或在队列中的进程</span><br><span class="line">S (TASK_INTERRUPTIBLE)		可中断的睡眠状态</span><br><span class="line">T (TASK_STOPPED)				停止状态</span><br><span class="line">t (TASK_TRACED)				被跟踪状态</span><br><span class="line">Z (TASK_DEAD - EXIT_ZOMBIE)  退出状态，但没被父进程收尸，成为僵尸状态</span><br><span class="line">X (TASK_DEAD - EXIT_DEAD)    退出状态，进程即将被销毁</span><br><span class="line"></span><br><span class="line">&lt;    高优先级</span><br><span class="line">N    低优先级</span><br><span class="line">L    有些页被锁进内存</span><br><span class="line">s    包含子进程</span><br><span class="line">+    位于前台的进程组；</span><br><span class="line">l    多线程，克隆线程  multi-threaded (using CLONE_THREAD, like NPTL pthreads <span class="keyword">do</span>)</span><br></pre></td></tr></table></figure>
+
+<h2 id="系统中常见的状态："><a href="#系统中常见的状态：" class="headerlink" title="系统中常见的状态："></a>系统中常见的状态：</h2><blockquote>
+<p>ps -aux 查看进程状态</p>
+</blockquote>
+<ul>
+<li>R   即 TASK_RUNNING ， 表示该进程正在cpu上运行，也就是在执行程序代码</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">        <span class="keyword">while</span>(<span class="number">1</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/07/13/task-create/psa.png" alt="psa"></p>
+<ul>
+<li><p>S  即 TASK_INTERRUPTIBLE ，表示该进程已经进入可中断的睡眠，这种一般都是主动调用sleep，或者因为等待数据而进入阻塞时的状态，通过ps 可以看到系统大部分的进程都是 S或 I 状态</p>
+</li>
+<li><p>I  即 TASK_IDLE , 表示该进程已经进入IDLE  模式</p>
+</li>
+</ul>
+<h2 id="进程状态的切换"><a href="#进程状态的切换" class="headerlink" title="进程状态的切换"></a>进程状态的切换</h2><p>​	Ready(runnable)表示该进程已经在cpu的运行队列上，但是还没被调度执行。</p>
+<p>​	Running表示正该进程已经在运行了，这个图表示进程Running与各个状态的切换关系</p>
+<p>R-&gt;t-&gt;Ready , R -&gt;T-&gt;Ready , R-&gt;s-&gt;Ready , R-&gt;D-&gt;Ready , R-&gt;Z , R-&gt;Z</p>
+<p><img src="/2022/07/13/task-create/image-20220718154845935.png" alt="image-20220718154845935"></p>
+<h1 id="进程运行"><a href="#进程运行" class="headerlink" title="进程运行"></a>进程运行</h1><h1 id="进程退出"><a href="#进程退出" class="headerlink" title="进程退出"></a>进程退出</h1><p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/lyndon_li/article/details/114295654">https://blog.csdn.net/lyndon_li/article/details/114295654</a></p>
+
     </div>
 
     
@@ -290,7 +359,8 @@
               <a href="/tags/linux%E5%86%85%E6%A0%B8/" rel="tag"># linux内核</a>
               <a href="/tags/fork/" rel="tag"># fork</a>
               <a href="/tags/idle/" rel="tag"># idle</a>
-              <a href="/tags/init/" rel="tag"># init</a>
+              <a href="/tags/task/" rel="tag"># task</a>
+              <a href="/tags/%E8%BF%9B%E7%A8%8B%E7%AE%A1%E7%90%86/" rel="tag"># 进程管理</a>
           </div>
 
         
