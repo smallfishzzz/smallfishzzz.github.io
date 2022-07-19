@@ -133,11 +133,47 @@ List of pre-defined events (to be used in -e):
 
 ## b) perf top
 
+perf top 可以观察系统或者进程的热点函数，适合分析性能
+
 > ~$  sudo perf top 
 
-![perftop](perftop.png)
+<img src="perftop.png" alt="perftop" style="zoom:80%;" />
+
+perf top -g 可以显示子热点函数的子调用栈 
+
+> sudo perf top -g
+
+<img src="perftop-g.png" alt="perftop-g" style="zoom:80%;" />
 
 
 
-## c) perf record
+> -C 可以只看某一个cpu上的事件，-p 可以指定pid 等等 具体可以通过perf top --help 查看
+>
+> 在perf top  按 A 键还可以查看汇编代码，并查看汇编的热点指令 ， 如果按键没有反应说明编译的时候有问题，需要解决大部分依赖
+
+
+
+## c) perf  火焰图
+
+perf record  用于性能统计，大部分都是看cpu资源的信息和进程相关信息，在当前目录下生成 perf.data 文件，可以通过 perf report 解析 perf.data 文件，但是都是字符类型的信息，不容易观察，所以这里可以搭配 火焰图或  观察
+
+火焰图四步：
+
+```c
+sudo perf record -e cpu-clock -g -p   [PID] 
+sudo perf script -i perf.data &>  perf.unfold 
+sudo ./stackcollapse-perf.pl perf.unfold &> perf.folded
+sudo ./flamegraph.pl perf.folded > perf.svg  
+```
+
+用浏览器打开perf.svg图片就行
+
+>flamegraph.pl  是Flame Graph的工具，位于github 上
+>git clone https://github.com/brendangregg/FlameGraph.git
+
+
+
+参考博客： https://www.cnblogs.com/happyliu/p/6142929.html
+
+
 

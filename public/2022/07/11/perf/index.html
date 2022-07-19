@@ -28,8 +28,9 @@
 <meta property="og:description" content="1 perf工具​	 Perf是Linux kernel自带的系统性能优化工具。Perf的优势在于与Linux Kernel的紧密结合，它可以最先应用到加入Kernel的new feature。perf可以统计硬件相关的信息如cpu cache miss、tlb miss、ips等等，软件上可以查看代码执行热点函数、热点指令、cpu迁移、等等，从而帮助开发者来优化程序性能。">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://smallfishzzz.github.io/2022/07/11/perf/perftop.png">
+<meta property="og:image" content="https://smallfishzzz.github.io/2022/07/11/perf/perftop-g.png">
 <meta property="article:published_time" content="2022-07-11T07:40:50.000Z">
-<meta property="article:modified_time" content="2022-07-12T05:43:15.741Z">
+<meta property="article:modified_time" content="2022-07-12T06:41:01.154Z">
 <meta property="article:author" content="ysj">
 <meta property="article:tag" content="linux内核">
 <meta property="article:tag" content="perf">
@@ -90,7 +91,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">3</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">1</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">2</span></a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">12</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">2</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">6</span></a></li>
   </ul>
 </nav>
 
@@ -121,7 +122,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-perf%E5%B7%A5%E5%85%B7"><span class="nav-number">1.</span> <span class="nav-text">1 perf工具</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-%E8%8E%B7%E5%BE%97perf"><span class="nav-number">2.</span> <span class="nav-text">2 获得perf</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-%E5%B8%B8%E7%94%A8%E6%96%B9%E6%B3%95"><span class="nav-number">3.</span> <span class="nav-text">3 常用方法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#a-perf-stat"><span class="nav-number">3.1.</span> <span class="nav-text">a) perf stat</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#b-perf-top"><span class="nav-number">3.2.</span> <span class="nav-text">b) perf top</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#c-perf-record"><span class="nav-number">3.3.</span> <span class="nav-text">c) perf record</span></a></li></ol></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-perf%E5%B7%A5%E5%85%B7"><span class="nav-number">1.</span> <span class="nav-text">1 perf工具</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-%E8%8E%B7%E5%BE%97perf"><span class="nav-number">2.</span> <span class="nav-text">2 获得perf</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-%E5%B8%B8%E7%94%A8%E6%96%B9%E6%B3%95"><span class="nav-number">3.</span> <span class="nav-text">3 常用方法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#a-perf-stat"><span class="nav-number">3.1.</span> <span class="nav-text">a) perf stat</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#b-perf-top"><span class="nav-number">3.2.</span> <span class="nav-text">b) perf top</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#c-perf-%E7%81%AB%E7%84%B0%E5%9B%BE"><span class="nav-number">3.3.</span> <span class="nav-text">c) perf  火焰图</span></a></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -134,18 +135,18 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">2</span>
+          <span class="site-state-item-count">6</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
           <a href="/categories/">
-        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-count">2</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-count">12</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -229,7 +230,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2022-07-12 13:43:15" itemprop="dateModified" datetime="2022-07-12T13:43:15+08:00">2022-07-12</time>
+      <time title="修改时间：2022-07-12 14:41:01" itemprop="dateModified" datetime="2022-07-12T14:41:01+08:00">2022-07-12</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -266,7 +267,7 @@
 <h1 id="2-获得perf"><a href="#2-获得perf" class="headerlink" title="2 获得perf"></a>2 获得perf</h1><p>a) 系统安装 </p>
 <p>debian、ubuntu、uos 下：<code>sudo apt install linux-perf</code> </p>
 <p>archlinux下 <code> sudo pacman -S perf</code> </p>
-<p>b) 获取内核源码，在源码目录下执行<code>make tools/perf</code> 或者<code>cd tools/perf  &amp;&amp;  make </code> </p>
+<p>b) 上述方法使用默认的操作系统，如果自己更换过内核且版本不一致，需要从内核源码中编译perf，在源码目录下执行<code>make tools/perf</code> 或者<code>cd tools/perf  &amp;&amp;  make </code> </p>
 <p>编译成功后在<code>tools/perf</code>目录下会生成perf 文件，cp 到<code>/usr/bin/</code> 目录下就ok了</p>
 <blockquote>
 <p> 编译尽量去掉警告，不然会有很多功能不支持，原因是有很多依赖包没有安装，最好根据编译提示都装一边</p>
@@ -293,11 +294,34 @@
 
 
 
-<h2 id="b-perf-top"><a href="#b-perf-top" class="headerlink" title="b) perf top"></a>b) perf top</h2><blockquote>
+<h2 id="b-perf-top"><a href="#b-perf-top" class="headerlink" title="b) perf top"></a>b) perf top</h2><p>perf top 可以观察系统或者进程的热点函数，适合分析性能</p>
+<blockquote>
 <p>~$  sudo perf top </p>
 </blockquote>
-<p><img src="/2022/07/11/perf/perftop.png" alt="perftop"></p>
-<h2 id="c-perf-record"><a href="#c-perf-record" class="headerlink" title="c) perf record"></a>c) perf record</h2>
+<img src="/2022/07/11/perf/perftop.png" alt="perftop" style="zoom:80%;">
+
+<p>perf top -g 可以显示子热点函数的子调用栈 </p>
+<blockquote>
+<p>sudo perf top -g</p>
+</blockquote>
+<img src="/2022/07/11/perf/perftop-g.png" alt="perftop-g" style="zoom:80%;">
+
+
+
+<blockquote>
+<p>-C 可以只看某一个cpu上的事件，-p 可以指定pid 等等 具体可以通过perf top –help 查看</p>
+<p>在perf top  按 A 键还可以查看汇编代码，并查看汇编的热点指令 ， 如果按键没有反应说明编译的时候有问题，需要解决大部分依赖</p>
+</blockquote>
+<h2 id="c-perf-火焰图"><a href="#c-perf-火焰图" class="headerlink" title="c) perf  火焰图"></a>c) perf  火焰图</h2><p>perf record  用于性能统计，大部分都是看cpu资源的信息和进程相关信息，在当前目录下生成 perf.data 文件，可以通过 perf report 解析 perf.data 文件，但是都是字符类型的信息，不容易观察，所以这里可以搭配 火焰图或  观察</p>
+<p>火焰图四步：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sudo perf record -e cpu-clock -g -p   [PID] </span><br><span class="line">sudo perf script -i perf.data &amp;&gt;  perf.unfold </span><br><span class="line">sudo ./stackcollapse-perf.pl perf.unfold &amp;&gt; perf.folded</span><br><span class="line">sudo ./flamegraph.pl perf.folded &gt; perf.svg  </span><br></pre></td></tr></table></figure>
+
+<p>用浏览器打开perf.svg图片就行</p>
+<blockquote>
+<p>flamegraph.pl  是Flame Graph的工具，位于github 上<br>git clone <a target="_blank" rel="noopener" href="https://github.com/brendangregg/FlameGraph.git">https://github.com/brendangregg/FlameGraph.git</a></p>
+</blockquote>
+<p>参考博客： <a target="_blank" rel="noopener" href="https://www.cnblogs.com/happyliu/p/6142929.html">https://www.cnblogs.com/happyliu/p/6142929.html</a></p>
+
     </div>
 
     
@@ -337,11 +361,11 @@
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/2022/07/07/hello-world/" rel="prev" title="Hello World">
-                  <i class="fa fa-chevron-left"></i> Hello World
-                </a>
             </div>
             <div class="post-nav-item">
+                <a href="/2022/07/12/task-schedule/" rel="next" title="进程管理 -- 调度">
+                  进程管理 -- 调度 <i class="fa fa-chevron-right"></i>
+                </a>
             </div>
           </div>
     </footer>
@@ -415,5 +439,5 @@
 
 
 
-<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"model":{"jsonPath":"/live2dw/assets/shizuku.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":false},"log":false});</script></body>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"model":{"jsonPath":"/live2dw/assets/shizuku.model.json"},"display":{"position":"right","width":300,"height":600},"mobile":{"show":false},"log":false});</script></body>
 </html>
