@@ -27,15 +27,17 @@
 <meta property="og:site_name" content="Small fish">
 <meta property="og:description" content="进程总结">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://smallfishzzz.github.io/2022/07/21/task-summary/update_load_avg.png">
+<meta property="og:image" content="https://smallfishzzz.github.io/2022/07/21/task-summary/image-20220722114354847.png">
 <meta property="og:image" content="https://smallfishzzz.github.io/2022/07/21/task-summary/image-20220721174548057.png">
 <meta property="article:published_time" content="2022-07-21T02:00:22.000Z">
-<meta property="article:modified_time" content="2022-07-21T09:48:52.153Z">
+<meta property="article:modified_time" content="2022-07-22T06:38:01.402Z">
 <meta property="article:author" content="ysj">
 <meta property="article:tag" content="linux内核">
 <meta property="article:tag" content="调度">
 <meta property="article:tag" content="schedule">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://smallfishzzz.github.io/2022/07/21/task-summary/image-20220721174548057.png">
+<meta name="twitter:image" content="https://smallfishzzz.github.io/2022/07/21/task-summary/update_load_avg.png">
 
 
 <link rel="canonical" href="https://smallfishzzz.github.io/2022/07/21/task-summary/">
@@ -221,9 +223,15 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">发表于</span>
-      
 
-      <time title="创建时间：2022-07-21 10:00:22 / 修改时间：17:48:52" itemprop="dateCreated datePublished" datetime="2022-07-21T10:00:22+08:00">2022-07-21</time>
+      <time title="创建时间：2022-07-21 10:00:22" itemprop="dateCreated datePublished" datetime="2022-07-21T10:00:22+08:00">2022-07-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2022-07-22 14:38:01" itemprop="dateModified" datetime="2022-07-22T14:38:01+08:00">2022-07-22</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -268,9 +276,29 @@
 <p>vruntime如何更新的，如何计算</p>
 <p>cfs中的min_vruntime有什么作用</p>
 <p>cfs调度器中fork新进程和新唤醒进程的vruntime如何处理</p>
-<h1 id="cfs中load-avf-contrib-runnable-avg-sum-runnable-avg-period作用"><a href="#cfs中load-avf-contrib-runnable-avg-sum-runnable-avg-period作用" class="headerlink" title="cfs中load_avf_contrib,runnable_avg_sum,runnable_avg_period作用"></a>cfs中load_avf_contrib,runnable_avg_sum,runnable_avg_period作用</h1><h1 id="prio-to-weight-prio-to-wmult-runnable-avg-yN-inv-runnbale-avg-yN-sum作用"><a href="#prio-to-weight-prio-to-wmult-runnable-avg-yN-inv-runnbale-avg-yN-sum作用" class="headerlink" title="prio_to_weight,prio_to_wmult,runnable_avg_yN_inv, runnbale_avg_yN_sum作用"></a>prio_to_weight,prio_to_wmult,runnable_avg_yN_inv, runnbale_avg_yN_sum作用</h1><hr>
-<h1 id="一个普通进程在就绪队列中等待很久后才被调度，那么平均负载如何计算"><a href="#一个普通进程在就绪队列中等待很久后才被调度，那么平均负载如何计算" class="headerlink" title="一个普通进程在就绪队列中等待很久后才被调度，那么平均负载如何计算"></a>一个普通进程在就绪队列中等待很久后才被调度，那么平均负载如何计算</h1><hr>
-<h1 id="调度域和调度组的拓扑图"><a href="#调度域和调度组的拓扑图" class="headerlink" title="调度域和调度组的拓扑图"></a>调度域和调度组的拓扑图</h1><hr>
+<h1 id="cfs中load-avf-contrib-runnable-avg-sum-runnable-avg-period作用"><a href="#cfs中load-avf-contrib-runnable-avg-sum-runnable-avg-period作用" class="headerlink" title="cfs中load_avf_contrib,runnable_avg_sum,runnable_avg_period作用"></a>cfs中load_avf_contrib,runnable_avg_sum,runnable_avg_period作用</h1><hr>
+<h1 id="prio-to-weight-prio-to-wmult-runnable-avg-yN-inv-runnbale-avg-yN-sum作用"><a href="#prio-to-weight-prio-to-wmult-runnable-avg-yN-inv-runnbale-avg-yN-sum作用" class="headerlink" title="prio_to_weight,prio_to_wmult,runnable_avg_yN_inv, runnbale_avg_yN_sum作用"></a>prio_to_weight,prio_to_wmult,runnable_avg_yN_inv, runnbale_avg_yN_sum作用</h1><p>a) CFS调度器根据优先级提出了nice的概念， 与权重weight一一对应，nice是一个整型，取值范围-20  ~ 19<br>与权重的转换公式  weight&#x3D; 1024&#x2F; 1.25^ nice ,  nice越小权重越大， 为了避免计算，将计算结果直接存放在prio_to_weight表中，方便快速查找。</p>
+<p>b) viture_runtime 是通过权重计算</p>
+<blockquote>
+<p>​           					                      NICE_0_LOAD<br>vriture_runtime &#x3D; wall_time * —————-<br>​					                                    weight</p>
+<p>​                                   NICE_0_LOAD * 2^32<br>​                &#x3D; (wall_time * ————————-) &gt;&gt; 32     &#x2F;&#x2F;为了避免浮点运算，先放大再缩小，保证精度<br>​		                                       weight</p>
+<p>​											                                                                                       	 2^32<br>​                &#x3D; (wall_time * NICE_0_LOAD * inv_weight) &gt;&gt; 32        (inv_weight &#x3D; ———— )<br>​                                            												                                            weight </p>
+</blockquote>
+<p>为了避免频繁的计算 inv_weight ， 直接将计算结果保存在prio_to_wmult 。</p>
+<p>c) 由于CFS调度器需要频繁的更新负载，为了实现预测机制 还会对负载进行衰减运算<br>        decay_load(val, n) &#x3D; val   *   y^n *    2^ 32  &gt;&gt;  32 ， 公式中的 y^n *    2^ 32   会频繁的计算，所以将这个值存放在  runnable_avg_yN_inv 表中可以直接获取， 表大小32 ， 内容就是 从1 衰减32 次 变成 0.5 ， 避免浮点计算 &lt;&lt; 32 位</p>
+<p><strong>总结：</strong></p>
+<p>a) prio_to_weight,prio_to_wmult,runnable_avg_yN_inv   这三个表都是为了避免浮点运算、除法运算，将固定数据存在表中，在频繁的更新负载中能提升运算速度<br>b) prio_to_weight  是将nice 值转为 权重值的表，nice 值越小 对应的权重越大，公式： weight&#x3D; 1024&#x2F; 1.25^ nice<br>c) prio_to_wmult 是为了快速计算的出inv_weight值，用来计算vriture_runtime<br>d) runnable_avg_yN_inv 存放的是负载衰减 在32 个周期内，每个周期对应的衰减系数 ，为了比避免除法运算都&lt;&lt; 32 位<br>e) runnbale_avg_yN_sum 不知道  </p>
+<hr>
+<h1 id="一个普通进程在就绪队列中等待很久后才被调度，那么平均负载如何计算"><a href="#一个普通进程在就绪队列中等待很久后才被调度，那么平均负载如何计算" class="headerlink" title="一个普通进程在就绪队列中等待很久后才被调度，那么平均负载如何计算"></a>一个普通进程在就绪队列中等待很久后才被调度，那么平均负载如何计算</h1><p>a) 更新load_avg 的时机</p>
+<p><img src="/2022/07/21/task-summary/update_load_avg.png" alt="update_load_avg"></p>
+<p>b) 一个普通进程(fair)  已经在 就绪队列中，那么更新负载的时机就只有<br>schedule：  set_next_entity、 put_prev_entity   选择下一个可以执行的进程时更新当前的和下一个的负载<br>tick： entity_tick  只会在运行时更新当前的负载 </p>
+<p>​			                                              se-&gt;load_sum<br>   se-&gt;load_avg &#x3D; ——————————————————————– * se-&gt;load.weight<br>​                                  LOAD_AVG_MAX - 1024 + sa-&gt;period_contrib</p>
+<p>​				                                se-&gt;runnable_load_sum</p>
+<p>se-&gt;runnable_load_avg &#x3D; ————————————————————- * se-&gt;runnable_weight<br>                                          LOAD_AVG_MAX - 1024 + sa-&gt;period_contrib</p>
+<hr>
+<h1 id="调度域和调度组的拓扑图"><a href="#调度域和调度组的拓扑图" class="headerlink" title="调度域和调度组的拓扑图"></a>调度域和调度组的拓扑图</h1><p>arm 8核 </p>
+<p><img src="/2022/07/21/task-summary/image-20220722114354847.png" alt="image-20220722114354847"></p>
+<hr>
 <h1 id="CPU0和CPU1同属于一个调度域且他们都不是idle-cpu，那么cpu-1可以负载均衡吗？"><a href="#CPU0和CPU1同属于一个调度域且他们都不是idle-cpu，那么cpu-1可以负载均衡吗？" class="headerlink" title="CPU0和CPU1同属于一个调度域且他们都不是idle cpu，那么cpu 1可以负载均衡吗？"></a>CPU0和CPU1同属于一个调度域且他们都不是idle cpu，那么cpu 1可以负载均衡吗？</h1><p>负载均衡条件判断：should_we_balance</p>
 <p><img src="/2022/07/21/task-summary/image-20220721174548057.png" alt="image-20220721174548057"></p>
 <p>解答:<br>a) 如果cpu0 cpu1 两个都不是非idle的，cpu1 执行load_balance 时，且当前域刚好有 cpu0 cpu1 ， 则不可以做负载均衡， 1是非idle 更不可能是CPU_NEWLY_IDLE ， 2 他不是第一个cpu</p>
