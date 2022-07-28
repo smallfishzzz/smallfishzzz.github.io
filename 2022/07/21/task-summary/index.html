@@ -27,17 +27,20 @@
 <meta property="og:site_name" content="Small fish">
 <meta property="og:description" content="进程总结">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://smallfishzzz.github.io/2022/07/21/task-summary/image-20220725133207179.png">
 <meta property="og:image" content="https://smallfishzzz.github.io/2022/07/21/task-summary/update_load_avg.png">
 <meta property="og:image" content="https://smallfishzzz.github.io/2022/07/21/task-summary/image-20220722114354847.png">
 <meta property="og:image" content="https://smallfishzzz.github.io/2022/07/21/task-summary/image-20220721174548057.png">
 <meta property="article:published_time" content="2022-07-21T02:00:22.000Z">
-<meta property="article:modified_time" content="2022-07-22T06:38:01.402Z">
+<meta property="article:modified_time" content="2022-07-25T05:36:06.537Z">
 <meta property="article:author" content="ysj">
 <meta property="article:tag" content="linux内核">
 <meta property="article:tag" content="调度">
 <meta property="article:tag" content="schedule">
+<meta property="article:tag" content="负载">
+<meta property="article:tag" content="进程优先级">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://smallfishzzz.github.io/2022/07/21/task-summary/update_load_avg.png">
+<meta name="twitter:image" content="https://smallfishzzz.github.io/2022/07/21/task-summary/image-20220725133207179.png">
 
 
 <link rel="canonical" href="https://smallfishzzz.github.io/2022/07/21/task-summary/">
@@ -92,7 +95,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">11</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">3</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">6</span></a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">19</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">4</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">7</span></a></li>
   </ul>
 </nav>
 
@@ -123,7 +126,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%86%85%E6%A0%B8%E4%B8%AD%E5%A6%82%E4%BD%95%E8%8E%B7%E5%8F%96%E5%BD%93%E5%89%8D%E8%BF%9B%E7%A8%8B%E7%9A%84task-struct"><span class="nav-number">1.</span> <span class="nav-text">内核中如何获取当前进程的task_struct</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BF%9B%E7%A8%8B%E6%89%93%E5%8D%B0%E5%87%BA%E5%87%A0%E4%B8%AA%E2%80%9D-%E2%80%9D"><span class="nav-number">2.</span> <span class="nav-text">进程打印出几个”-”</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#cfs%E4%B8%ADload-avf-contrib-runnable-avg-sum-runnable-avg-period%E4%BD%9C%E7%94%A8"><span class="nav-number">3.</span> <span class="nav-text">cfs中load_avf_contrib,runnable_avg_sum,runnable_avg_period作用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#prio-to-weight-prio-to-wmult-runnable-avg-yN-inv-runnbale-avg-yN-sum%E4%BD%9C%E7%94%A8"><span class="nav-number">4.</span> <span class="nav-text">prio_to_weight,prio_to_wmult,runnable_avg_yN_inv, runnbale_avg_yN_sum作用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%80%E4%B8%AA%E6%99%AE%E9%80%9A%E8%BF%9B%E7%A8%8B%E5%9C%A8%E5%B0%B1%E7%BB%AA%E9%98%9F%E5%88%97%E4%B8%AD%E7%AD%89%E5%BE%85%E5%BE%88%E4%B9%85%E5%90%8E%E6%89%8D%E8%A2%AB%E8%B0%83%E5%BA%A6%EF%BC%8C%E9%82%A3%E4%B9%88%E5%B9%B3%E5%9D%87%E8%B4%9F%E8%BD%BD%E5%A6%82%E4%BD%95%E8%AE%A1%E7%AE%97"><span class="nav-number">5.</span> <span class="nav-text">一个普通进程在就绪队列中等待很久后才被调度，那么平均负载如何计算</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%B0%83%E5%BA%A6%E5%9F%9F%E5%92%8C%E8%B0%83%E5%BA%A6%E7%BB%84%E7%9A%84%E6%8B%93%E6%89%91%E5%9B%BE"><span class="nav-number">6.</span> <span class="nav-text">调度域和调度组的拓扑图</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CPU0%E5%92%8CCPU1%E5%90%8C%E5%B1%9E%E4%BA%8E%E4%B8%80%E4%B8%AA%E8%B0%83%E5%BA%A6%E5%9F%9F%E4%B8%94%E4%BB%96%E4%BB%AC%E9%83%BD%E4%B8%8D%E6%98%AFidle-cpu%EF%BC%8C%E9%82%A3%E4%B9%88cpu-1%E5%8F%AF%E4%BB%A5%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E5%90%97%EF%BC%9F"><span class="nav-number">7.</span> <span class="nav-text">CPU0和CPU1同属于一个调度域且他们都不是idle cpu，那么cpu 1可以负载均衡吗？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E6%89%BE%E5%88%B0%E8%B0%83%E5%BA%A6%E5%9F%9F%E4%B8%AD%E7%9A%84%E8%B0%83%E5%BA%A6%E7%BB%84"><span class="nav-number">8.</span> <span class="nav-text">如何找到调度域中的调度组</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E6%89%BE%E5%88%B0%E8%B0%83%E5%BA%A6%E5%9F%9F%E4%B8%AD%E7%9A%84%E6%9C%80%E5%BF%99%E7%9A%84%E8%B0%83%E5%BA%A6%E7%BB%84"><span class="nav-number">9.</span> <span class="nav-text">如何找到调度域中的最忙的调度组</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%B0%83%E5%BA%A6%E5%9F%9F%E4%B8%AD%E7%9A%84%E8%B4%9F%E8%BD%BD%E4%B8%8D%E5%9D%87%E8%A1%A1%E6%97%B6%EF%BC%8C%E5%A6%82%E4%BD%95%E8%AE%A1%E7%AE%97%E9%9C%80%E8%A6%81%E8%BF%81%E7%A7%BB%E8%B4%9F%E8%BD%BD%E9%87%8F"><span class="nav-number">10.</span> <span class="nav-text">调度域中的负载不均衡时，如何计算需要迁移负载量</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#select-task-rq-fair"><span class="nav-number">11.</span> <span class="nav-text">select_task_rq_fair</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#wake-up%E6%97%B6%E9%80%89%E6%8B%A9cpu%E7%9A%84%E7%AD%96%E7%95%A5"><span class="nav-number">11.1.</span> <span class="nav-text">wake_up时选择cpu的策略</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#fork%E6%97%B6%E9%80%89%E6%8B%A9cpu%E7%9A%84%E7%AD%96%E7%95%A5"><span class="nav-number">11.2.</span> <span class="nav-text">fork时选择cpu的策略</span></a></li></ol></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%86%85%E6%A0%B8%E4%B8%AD%E5%A6%82%E4%BD%95%E8%8E%B7%E5%8F%96%E5%BD%93%E5%89%8D%E7%9A%84-task-struct"><span class="nav-number">1.</span> <span class="nav-text">内核中如何获取当前的 task_struct</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1%EF%BC%89%E5%A6%82%E6%9E%9C%E6%98%AFarm"><span class="nav-number">1.1.</span> <span class="nav-text">1）如果是arm:</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2%EF%BC%89%E5%A6%82%E6%9E%9C%E6%98%AFx86"><span class="nav-number">1.2.</span> <span class="nav-text">2）如果是x86:</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%94%A8%E6%88%B7%E8%BF%9B%E7%A8%8B%E7%9A%84%E4%B8%80%E7%BA%A7%E9%A1%B5%E8%A1%A8%EF%BC%8C%E4%BA%8C%E7%BA%A7%E9%A1%B5%E8%A1%A8%E6%98%AF%E4%BB%80%E4%B9%88%E6%97%B6%E5%80%99%E5%88%86%E9%85%8D%E7%9A%84"><span class="nav-number">2.</span> <span class="nav-text">用户进程的一级页表，二级页表是什么时候分配的</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BF%9B%E7%A8%8B%E8%B0%83%E5%BA%A6%E5%99%A8%E7%9A%84%E4%BD%9C%E7%94%A8"><span class="nav-number">3.</span> <span class="nav-text">进程调度器的作用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BF%9B%E7%A8%8B%E4%BC%98%E5%85%88%E7%BA%A7%EF%BC%8Cnice%E5%80%BC%EF%BC%8C%E6%9D%83%E9%87%8D%E7%9A%84%E5%85%B3%E7%B3%BB"><span class="nav-number">4.</span> <span class="nav-text">进程优先级，nice值，权重的关系</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BF%9B%E7%A8%8B%E8%B0%83%E5%BA%A6%E5%91%A8%E6%9C%9F%EF%BC%8C%E8%BF%90%E8%A1%8C%E6%97%B6%E9%97%B4"><span class="nav-number">5.</span> <span class="nav-text">进程调度周期，运行时间</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#A%EF%BC%8CB%E5%88%87%E6%8D%A2%E7%9A%84%E6%95%B4%E4%B8%AA%E6%B5%81%E7%A8%8B"><span class="nav-number">6.</span> <span class="nav-text">A，B切换的整个流程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8A%A2%E5%8D%A0"><span class="nav-number">7.</span> <span class="nav-text">抢占</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#vruntime%E5%A6%82%E4%BD%95%E6%9B%B4%E6%96%B0%E7%9A%84%EF%BC%8C%E5%A6%82%E4%BD%95%E8%AE%A1%E7%AE%97"><span class="nav-number">8.</span> <span class="nav-text">vruntime如何更新的，如何计算</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#cfs%E8%B0%83%E5%BA%A6%E5%99%A8%E4%B8%ADfork%E6%96%B0%E8%BF%9B%E7%A8%8B%E5%92%8C%E6%96%B0%E5%94%A4%E9%86%92%E8%BF%9B%E7%A8%8B%E7%9A%84vruntime%E5%A6%82%E4%BD%95%E5%A4%84%E7%90%86"><span class="nav-number">9.</span> <span class="nav-text">cfs调度器中fork新进程和新唤醒进程的vruntime如何处理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">10.</span> <span class="nav-text"></span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#prio-to-weight-prio-to-wmult-runnable-avg-yN-inv-runnbale-avg-yN-sum%E4%BD%9C%E7%94%A8"><span class="nav-number">11.</span> <span class="nav-text">prio_to_weight,prio_to_wmult,runnable_avg_yN_inv, runnbale_avg_yN_sum作用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%80%E4%B8%AA%E6%99%AE%E9%80%9A%E8%BF%9B%E7%A8%8B%E5%9C%A8%E5%B0%B1%E7%BB%AA%E9%98%9F%E5%88%97%E4%B8%AD%E7%AD%89%E5%BE%85%E5%BE%88%E4%B9%85%E5%90%8E%E6%89%8D%E8%A2%AB%E8%B0%83%E5%BA%A6%EF%BC%8C%E9%82%A3%E4%B9%88%E5%B9%B3%E5%9D%87%E8%B4%9F%E8%BD%BD%E5%A6%82%E4%BD%95%E8%AE%A1%E7%AE%97"><span class="nav-number">12.</span> <span class="nav-text">一个普通进程在就绪队列中等待很久后才被调度，那么平均负载如何计算</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%B0%83%E5%BA%A6%E5%9F%9F%E5%92%8C%E8%B0%83%E5%BA%A6%E7%BB%84%E7%9A%84%E6%8B%93%E6%89%91%E5%9B%BE"><span class="nav-number">13.</span> <span class="nav-text">调度域和调度组的拓扑图</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CPU0%E5%92%8CCPU1%E5%90%8C%E5%B1%9E%E4%BA%8E%E4%B8%80%E4%B8%AA%E8%B0%83%E5%BA%A6%E5%9F%9F%E4%B8%94%E4%BB%96%E4%BB%AC%E9%83%BD%E4%B8%8D%E6%98%AFidle-cpu%EF%BC%8C%E9%82%A3%E4%B9%88cpu-1%E5%8F%AF%E4%BB%A5%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E5%90%97%EF%BC%9F"><span class="nav-number">14.</span> <span class="nav-text">CPU0和CPU1同属于一个调度域且他们都不是idle cpu，那么cpu 1可以负载均衡吗？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E6%89%BE%E5%88%B0%E8%B0%83%E5%BA%A6%E5%9F%9F%E4%B8%AD%E7%9A%84%E8%B0%83%E5%BA%A6%E7%BB%84"><span class="nav-number">15.</span> <span class="nav-text">如何找到调度域中的调度组</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E6%89%BE%E5%88%B0%E8%B0%83%E5%BA%A6%E5%9F%9F%E4%B8%AD%E7%9A%84%E6%9C%80%E5%BF%99%E7%9A%84%E8%B0%83%E5%BA%A6%E7%BB%84"><span class="nav-number">16.</span> <span class="nav-text">如何找到调度域中的最忙的调度组</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%B0%83%E5%BA%A6%E5%9F%9F%E4%B8%AD%E7%9A%84%E8%B4%9F%E8%BD%BD%E4%B8%8D%E5%9D%87%E8%A1%A1%E6%97%B6%EF%BC%8C%E5%A6%82%E4%BD%95%E8%AE%A1%E7%AE%97%E9%9C%80%E8%A6%81%E8%BF%81%E7%A7%BB%E8%B4%9F%E8%BD%BD%E9%87%8F"><span class="nav-number">17.</span> <span class="nav-text">调度域中的负载不均衡时，如何计算需要迁移负载量</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#select-task-rq-fair"><span class="nav-number">18.</span> <span class="nav-text">select_task_rq_fair</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#wake-up%E6%97%B6%E9%80%89%E6%8B%A9cpu%E7%9A%84%E7%AD%96%E7%95%A5"><span class="nav-number">18.1.</span> <span class="nav-text">wake_up时选择cpu的策略</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#fork%E6%97%B6%E9%80%89%E6%8B%A9cpu%E7%9A%84%E7%AD%96%E7%95%A5"><span class="nav-number">18.2.</span> <span class="nav-text">fork时选择cpu的策略</span></a></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -136,18 +139,18 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">6</span>
+          <span class="site-state-item-count">7</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
           <a href="/categories/">
-        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-count">4</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-count">19</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -231,7 +234,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2022-07-22 14:38:01" itemprop="dateModified" datetime="2022-07-22T14:38:01+08:00">2022-07-22</time>
+      <time title="修改时间：2022-07-25 13:36:06" itemprop="dateModified" datetime="2022-07-25T13:36:06+08:00">2022-07-25</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -265,25 +268,102 @@
 
 
 
-<h1 id="内核中如何获取当前进程的task-struct"><a href="#内核中如何获取当前进程的task-struct" class="headerlink" title="内核中如何获取当前进程的task_struct"></a>内核中如何获取当前进程的task_struct</h1><h1 id="进程打印出几个”-”"><a href="#进程打印出几个”-”" class="headerlink" title="进程打印出几个”-”"></a>进程打印出几个”-”</h1><p>用户进程的一级页表，二级页表是什么时候分配的</p>
-<p>调度器相关：</p>
-<p>进程调度器的作用？</p>
-<p>进程优先级，nice值，权重的关系</p>
-<p>cfs调度器是如何工作的</p>
-<p>进程调度周期，运行时间</p>
-<p>A，B切换的整个流程</p>
-<p>抢占</p>
-<p>vruntime如何更新的，如何计算</p>
-<p>cfs中的min_vruntime有什么作用</p>
-<p>cfs调度器中fork新进程和新唤醒进程的vruntime如何处理</p>
-<h1 id="cfs中load-avf-contrib-runnable-avg-sum-runnable-avg-period作用"><a href="#cfs中load-avf-contrib-runnable-avg-sum-runnable-avg-period作用" class="headerlink" title="cfs中load_avf_contrib,runnable_avg_sum,runnable_avg_period作用"></a>cfs中load_avf_contrib,runnable_avg_sum,runnable_avg_period作用</h1><hr>
+<h1 id="内核中如何获取当前的-task-struct"><a href="#内核中如何获取当前的-task-struct" class="headerlink" title="内核中如何获取当前的 task_struct"></a>内核中如何获取当前的 task_struct</h1><h2 id="1）如果是arm"><a href="#1）如果是arm" class="headerlink" title="1）如果是arm:"></a>1）如果是arm:</h2><p>内核中通过sp_el0就获取到了当前任务的task_struct</p>
+<p>执行schedule时，先在rq中将下一个任务挑选出来，获取到了该任务的task_struct，然后在swtich_to中的cpu_switch将该指针赋值给了sp_el0</p>
+<h2 id="2）如果是x86"><a href="#2）如果是x86" class="headerlink" title="2）如果是x86:"></a>2）如果是x86:</h2><p>获得当前内核栈的sp指针的地址，然后根据THREAD_SIZE对齐就可以获取thread_info结构的基地址，然后从thread_info.task就可以获取当前task_struct结构的地址了。</p>
+<hr>
+<h1 id="用户进程的一级页表，二级页表是什么时候分配的"><a href="#用户进程的一级页表，二级页表是什么时候分配的" class="headerlink" title="用户进程的一级页表，二级页表是什么时候分配的"></a>用户进程的一级页表，二级页表是什么时候分配的</h1><p>fork时调用copy_process时内部有copy_one_pte，创建pgd，pte表</p>
+<p>然后在访问时，通过写时复制机制触发page_fault,创建pud和pmd</p>
+<p>写时复制</p>
+<hr>
+<h1 id="进程调度器的作用"><a href="#进程调度器的作用" class="headerlink" title="进程调度器的作用"></a>进程调度器的作用</h1><p>调度器：</p>
+<p>a) 针对任务，那么就是选择在哪个cpu上运行</p>
+<p>b) 针对cpu，那就是选择哪个任务先运行</p>
+<p>cfs:</p>
+<p>a) 任务角度，通过vruntime保证任务的公平运行，然后通过nice值确认实际运行时间</p>
+<p>b) cpu角度，通过负载均衡来确保cpu间负载差异最低，最大程度的利用cpu资源</p>
+<hr>
+<h1 id="进程优先级，nice值，权重的关系"><a href="#进程优先级，nice值，权重的关系" class="headerlink" title="进程优先级，nice值，权重的关系"></a>进程优先级，nice值，权重的关系</h1><p>1）进程优先级：</p>
+<p>Struct task_struct{</p>
+<p>Int prio;		&#x2F;&#x2F;抢占时判断优先级使用</p>
+<p>Int static_prio;	&#x2F;&#x2F;通俗理解的优先级，根据NICE_TO_PRIO计算的得到</p>
+<p>Int normal_prio;		&#x2F;&#x2F;实时进程相关，忽略</p>
+<p>int rt_prio;		&#x2F;&#x2F;实时进程相关，忽略</p>
+<p>}</p>
+<p>2）进程优先级和nice值的转换</p>
+<p>0-139;0-99实时进程使用，100-139是普通进程使用</p>
+<p>Nice值和优先级关系:</p>
+<p>#define NICE_TO_PRIO(nice)    ((nice) + DEFAULT_PRIO)</p>
+<p>如果nice值是0的，prio&#x3D;120,如果通过top显示就是20</p>
+<p>3）权重和prio的转换</p>
+<p>int prio &#x3D; p-&gt;static_prio - MAX_RT_PRIO;	</p>
+<p>&#x2F;&#x2F;一个普通进程的static_prio是120,prio&#x3D;20</p>
+<hr>
+<h1 id="进程调度周期，运行时间"><a href="#进程调度周期，运行时间" class="headerlink" title="进程调度周期，运行时间"></a>进程调度周期，运行时间</h1><p>1）调度周期有俩种可能：</p>
+<p>a)当进程数小于8时，就直接等于调度延时</p>
+<p>b)当进程数大于8时，等于最小粒度时间*进程数</p>
+<p>2)调度延时和最小力度时间默认是6ms和0.75ms：</p>
+<p>Factor大小由策略决定，代码如下，有三种可能：</p>
+<p>a)不操作</p>
+<p>b)线性增大，即cpu数</p>
+<p>c)Log性增大，即(log2^cpu数+1)</p>
+<p>我们选择的是第三种情况，所以：</p>
+<p>调度延时：6*(log2^8 +1) &#x3D; 24ms</p>
+<p>最小粒度时间：0.75*(log2^8 +1)&#x3D;3ms</p>
+<p>\1) 进程运行时间</p>
+<p>当调度延迟为24ms</p>
+<p>a) 进程A，B优先级别都是0,</p>
+<p>每个进程在一个调度周期内的虚拟运行时间和真实运行时间都为12ms。</p>
+<p>b) a的优先级是0,b的优先级是1</p>
+<p>c) 即权重分别是1024和820</p>
+<p>进程a</p>
+<p>虚拟时间：12ms</p>
+<p>真实时间：24x1024&#x2F;(1024+820)&#x3D;13.2ms</p>
+<p>进程b</p>
+<p>虚拟时间：12ms</p>
+<p>真实时间：24x820&#x2F;(1024+820)&#x3D;10.8ms</p>
+<hr>
+<h1 id="A，B切换的整个流程"><a href="#A，B切换的整个流程" class="headerlink" title="A，B切换的整个流程"></a>A，B切换的整个流程</h1><p><img src="/2022/07/21/task-summary/image-20220725133207179.png" alt="image-20220725133207179"></p>
+<p>1）A进程正常运行，然后发生tick中断，中断处理保持中断现场</p>
+<p>2）时钟中断中判断是否需要调度（比如当前进程实际运行时间是否超过理论时间，或者有优先级更高的需要运行），需要就置上_TIF_NEED_RESHED标记</p>
+<p>3）中断返回ret_to_user时，会判断该标记，如果有标记就会调用schedule</p>
+<p>4）shcedule中switch_mm_irq_off切换进程VA，cpu_switch_to切换硬件上下文</p>
+<p>5）B进程从context_switch调用下一条指令开始执行，然后根据B进程的内核栈切换出栈</p>
+<p>6）返回用户态继续执行</p>
+<hr>
+<h1 id="抢占"><a href="#抢占" class="headerlink" title="抢占"></a>抢占</h1><p>2.6 之前，一个进程进入内核态后，别的进程无法抢占，只能等其完成或退出内核态时才能抢占, 这带来严重的延时问题，2.6 开始支持内核态抢占。</p>
+<p>举例：</p>
+<p>1）A，B进程同时运行，A系统调用进程内核</p>
+<p>2）tick时，会调用check_preemt_curr判断当前进程是否可以被置上RESCHEDULE标记，判断依据就是vruntime大小，假设置上了标记了</p>
+<p>3）如果打开了内核抢占，在中断返回内核空间时，会进行内核抢占。</p>
+<p>4）如果没有打开内核抢占，那么就需要等待进程返回用户态才会抢占。</p>
+<p><a target="_blank" rel="noopener" href="https://www.eet-china.com/mp/a84517.html">https://www.eet-china.com/mp/a84517.html</a></p>
+<hr>
+<h1 id="vruntime如何更新的，如何计算"><a href="#vruntime如何更新的，如何计算" class="headerlink" title="vruntime如何更新的，如何计算"></a>vruntime如何更新的，如何计算</h1><p>\1) fork的进程</p>
+<p>vruntime &#x3D; 父进程vruntime - cpux_min_vruntime + cpuy_min_vruntime</p>
+<p>所以fork出来的进程就是减去当前的vruntime再加上新cpu的vruntiem，那么该改进程的vruntime大小取决于父进行运行的时间</p>
+<p>\2) wake_up</p>
+<p>vruntime &#x3D; cfs_rq-&gt;min_vruntime - sysctl_sched_latency&#x2F;2</p>
+<p>vruntime &#x3D; max_vruntime(se-&gt;vruntime, vruntime)</p>
+<p>a) 先vruntime减去一半的调度周期进行弥补</p>
+<p>b) 再和se的vruntime进行对比</p>
+<p>当进程休眠时间长，意味着se的min太小打破cfs平衡，所以采用弥补后的vruntime</p>
+<p>当进程休眠时，vruntime很大，而且休眠很短时间。即se-&gt;vruntiem&gt;vruntime，可以防止进程的vruntime后退。</p>
+<hr>
+<h1 id="cfs调度器中fork新进程和新唤醒进程的vruntime如何处理"><a href="#cfs调度器中fork新进程和新唤醒进程的vruntime如何处理" class="headerlink" title="cfs调度器中fork新进程和新唤醒进程的vruntime如何处理"></a>cfs调度器中fork新进程和新唤醒进程的vruntime如何处理</h1><p>min_vruntime是CFS<a target="_blank" rel="noopener" href="https://so.csdn.net/so/search?q=%E7%BA%A2%E9%BB%91%E6%A0%91&spm=1001.2101.3001.7020">红黑树</a>中最小的虚拟时间（运行最少）</p>
+<p>作用：解决不同cpu的虚拟运行时间不同问题。</p>
+<p>举例：</p>
+<p>1）创建时先将父进程vruntime赋值给子进程</p>
+<p>2）子进程减去当前cpu的min_vruntime</p>
+<p>3）子进程再运行时会将要运行cpu的min_vruntime加上</p>
+<p>这样就解决了不同cpu间min_vruntime有差异的问题。</p>
+<h1 id><a href="#" class="headerlink" title></a></h1><hr>
 <h1 id="prio-to-weight-prio-to-wmult-runnable-avg-yN-inv-runnbale-avg-yN-sum作用"><a href="#prio-to-weight-prio-to-wmult-runnable-avg-yN-inv-runnbale-avg-yN-sum作用" class="headerlink" title="prio_to_weight,prio_to_wmult,runnable_avg_yN_inv, runnbale_avg_yN_sum作用"></a>prio_to_weight,prio_to_wmult,runnable_avg_yN_inv, runnbale_avg_yN_sum作用</h1><p>a) CFS调度器根据优先级提出了nice的概念， 与权重weight一一对应，nice是一个整型，取值范围-20  ~ 19<br>与权重的转换公式  weight&#x3D; 1024&#x2F; 1.25^ nice ,  nice越小权重越大， 为了避免计算，将计算结果直接存放在prio_to_weight表中，方便快速查找。</p>
 <p>b) viture_runtime 是通过权重计算</p>
-<blockquote>
-<p>​           					                      NICE_0_LOAD<br>vriture_runtime &#x3D; wall_time * —————-<br>​					                                    weight</p>
-<p>​                                   NICE_0_LOAD * 2^32<br>​                &#x3D; (wall_time * ————————-) &gt;&gt; 32     &#x2F;&#x2F;为了避免浮点运算，先放大再缩小，保证精度<br>​		                                       weight</p>
-<p>​											                                                                                       	 2^32<br>​                &#x3D; (wall_time * NICE_0_LOAD * inv_weight) &gt;&gt; 32        (inv_weight &#x3D; ———— )<br>​                                            												                                            weight </p>
-</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">           			          NICE_0_LOAD</span><br><span class="line">vriture_runtime = wall_time * ----------------</span><br><span class="line">					               weight</span><br><span class="line"></span><br><span class="line">                                   NICE_0_LOAD * 2^32</span><br><span class="line">                = (wall_time * -------------------------) &gt;&gt; 32     //为了避免浮点运算，先放大再缩小，保证精度</span><br><span class="line">		                            weight</span><br><span class="line"></span><br><span class="line">											                                                                                       	 2^32</span><br><span class="line">                = (wall_time * NICE_0_LOAD * inv_weight) &gt;&gt; 32        (inv_weight = ------------ )</span><br><span class="line">                                            												                                    weight </span><br></pre></td></tr></table></figure>
+
+
+
 <p>为了避免频繁的计算 inv_weight ， 直接将计算结果保存在prio_to_wmult 。</p>
 <p>c) 由于CFS调度器需要频繁的更新负载，为了实现预测机制 还会对负载进行衰减运算<br>        decay_load(val, n) &#x3D; val   *   y^n *    2^ 32  &gt;&gt;  32 ， 公式中的 y^n *    2^ 32   会频繁的计算，所以将这个值存放在  runnable_avg_yN_inv 表中可以直接获取， 表大小32 ， 内容就是 从1 衰减32 次 变成 0.5 ， 避免浮点计算 &lt;&lt; 32 位</p>
 <p><strong>总结：</strong></p>
@@ -313,9 +393,9 @@
 <p>  group_overloaded   &#x3D; (sgs-&gt;group_capacity * 100  &lt; sgs-&gt;group_util * env-&gt;sd-&gt;imbalance_pct    )  imbalance_pct 是根据调度域来的， 每一层都大于 110 </p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">enum</span> <span class="title">group_type</span> &#123;</span></span><br><span class="line">    group_other = <span class="number">0</span>,</span><br><span class="line">    group_imbalanced,   <span class="comment">// 组内 imbalance 也就是子域就是没有处理完的 imbalance</span></span><br><span class="line">    group_overloaded,   <span class="comment">// 超载，组的能力 *100 &lt;  组的实际负载*（110-125）</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 
-<p>b)  busiest 选择规则就是遍历域中所有的组，假如调度有四个组，<br>         buisest -&gt;group_type &#x3D; group_other<br>    第一次，假如遍历到自己的组sg1，跳过<br>    第二次，遍历到组sg2 ，该组是group_imbalanced &gt; buisest -&gt;group_type ， 那么此时  busiest&#x3D;sg2<br>    第三次，遍历到组sg3， 该组是group_overloaded &gt; buisest -&gt;group_type   , 此时 buisest&#x3D;sg3<br>    第四次还有，就根据情况覆盖或者不选择</p>
+<p>b)  busiest 选择规则就是遍历域中所有的组，假如调度有四个组，<br>         buisest -&gt;group_type &#x3D; group_other<br>    第一次，假如遍历到自己的组sg1，跳过<br>    第二次，遍历到组sg2 ，该组是group_imbalanced &gt; buisest -&gt;group_type ， 那么此时  busiest&#x3D;sg2<br>    第三次，遍历到组sg3， 该组是group_overloaded &gt; buisest -&gt;group_type   , 此时 buisest&#x3D;sg3<br>    第四次还有，</p>
 <p><strong>总结：</strong></p>
-<p>a) 选最忙的调度组好像不完全根据负载，有两种情况会选择，<br>假如调度域内的组是imbalance的，那么会选择该组作为最忙的组，<br>假如调度域内的组是overloaded的，则有限选择overloaded的组，<br>overloaded是将组的实际负载与组的能力做比较得到的</p>
+<p>a) 选最忙的调度组好像不完全根据负载，有两种情况会选择，<br>假如调度域内的组是imbalance的，那么会选择该组作为最忙的组，<br>假如调度域内的组是overloaded的，则有限选择overloaded的组，<br>如果都是相同的group_type 则 根据负载来比较。</p>
 <hr>
 <h1 id="调度域中的负载不均衡时，如何计算需要迁移负载量"><a href="#调度域中的负载不均衡时，如何计算需要迁移负载量" class="headerlink" title="调度域中的负载不均衡时，如何计算需要迁移负载量"></a>调度域中的负载不均衡时，如何计算需要迁移负载量</h1><p><strong>函数：</strong> load_balance ，  calculate_imbalance<br><strong>流程：</strong></p>
 <p>a) 在当前cpu所在的域中找到最忙的组并计算imbalance 值<br>b) 再从最忙的组中找到一个最忙的rq busiest<br>c) 调用detach_tasks 将busiest rq的进程往 当前cpu rq 迁移，规则是进程的 task_h_load  &lt; imbalance&#x2F;2   时就可以迁移该进程 , 迁移一个进程 imbalance 就减去该进程的task_h_load ，直到imbalance 接近0,但不会小于0</p>
@@ -333,7 +413,8 @@
 <p>prev_cpu 概念 :  被唤醒进程p-&gt;wake_cpu<br>want_affine 概念： 当前cpu没有频繁唤醒别人，被唤醒的进程没有频繁唤醒别人，并且当前cpu和 prev_cpu 有能力运行被唤醒的进程</p>
 <p>a)  如果被唤醒进程prev_cpu与当前cpu 有亲和性want_affine，优先在prev_cpu 和当前current-&gt;cpu中选择一个空闲的new_cpu<br>b) 如果选择的new_cpu不是idle（cpu rq没有任务可运行） 则在选择的cpu的兄弟中去选择一个idle的cpu<br>c) 选择兄弟idle 的cpu时，优先看p-&gt;recent_used_cpu  （是否idle、是否与current-&gt;cpu共享llc）如果p-&gt;recent_used_cpu 不可选，则在new_cpu所在的域中选择一个idle的cpu。</p>
 <p>d) 如果被唤醒进程p-&gt;wake_cpu 没有亲和性want_affine，则在prev_cpu兄弟中去选择一个idle的cpu， 然后再重复 c)</p>
-<p><strong>总结</strong>:<br>a) 唤醒时选择cpu 优先选择idle的cpu，其次才是负载低的cpu，<br>b) current-&gt;cpu 、prev_cpu  中选idle的为new_cpu， 当new_cpu 不空闲时考虑 p-&gt;recent_use_cpu,如果p-&gt;recent_use_cpu 也不空闲时选择 new_cpu 的llc 所在的域中选择一个idle的cpu</p>
+<p><strong>总结</strong>:<br>a) 唤醒时选择cpu 优先选择idle的cpu，其次才是负载低的cpu，<br>b) current-&gt;cpu 、prev_cpu  中选一个cpu的为new_cpu， 当new_cpu 不空闲时考虑 p-&gt;recent_use_cpu,如果p-&gt;recent_use_cpu 也不空闲时选择 new_cpu 的llc 所在的域中选择一个idle的cpu</p>
+<p>c) 没有want_affine 时走fork流程</p>
 <h2 id="fork时选择cpu的策略"><a href="#fork时选择cpu的策略" class="headerlink" title="fork时选择cpu的策略"></a>fork时选择cpu的策略</h2><p><strong>函数</strong>：select_task_rq_fair ， find_idlest_cpu</p>
 <p><strong>流程：</strong></p>
 <p>a) 找到一个域， 从下往上便利，一直找到没有SD_LOAD_BALANCE的域的子域<br>b) 再找到该域中找到最空闲的cpu   </p>
@@ -350,18 +431,7 @@
 
 
 <ul>
-<li><p>CFS如何工作</p>
-</li>
-<li><p>vruntime怎么计算，更新的时机</p>
-</li>
-<li><p>CFS对刚创建的进程和刚唤醒的进程怎么处理的</p>
-</li>
-<li><p>prio_to_weight , prio_to_wmult, runnable_avg_yN_inv   含义</p>
-</li>
-<li><p>如果一个进程在就绪队列里等待了很长时间才被调度，他的负载怎么计算</p>
-</li>
-<li><p>switch_to 有三个参数 prev next last 的last是做什么的</p>
-</li>
+<li>switch_to 有三个参数 prev next last 的last是做什么的</li>
 </ul>
 <p>参考</p>
 <p><a target="_blank" rel="noopener" href="http://www.wowotech.net/process_management/process-priority.html">http://www.wowotech.net/process_management/process-priority.html</a></p>
@@ -399,6 +469,8 @@
               <a href="/tags/linux%E5%86%85%E6%A0%B8/" rel="tag"># linux内核</a>
               <a href="/tags/%E8%B0%83%E5%BA%A6/" rel="tag"># 调度</a>
               <a href="/tags/schedule/" rel="tag"># schedule</a>
+              <a href="/tags/%E8%B4%9F%E8%BD%BD/" rel="tag"># 负载</a>
+              <a href="/tags/%E8%BF%9B%E7%A8%8B%E4%BC%98%E5%85%88%E7%BA%A7/" rel="tag"># 进程优先级</a>
           </div>
 
         
@@ -410,6 +482,9 @@
                 </a>
             </div>
             <div class="post-nav-item">
+                <a href="/2022/07/22/kernel-base/" rel="next" title="kernel-base">
+                  kernel-base <i class="fa fa-chevron-right"></i>
+                </a>
             </div>
           </div>
     </footer>

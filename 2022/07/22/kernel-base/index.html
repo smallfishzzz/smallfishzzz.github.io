@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 5.4.2">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha256-DfWjNxDkM94fVBWx1H5BMMp0Zq7luBlV8QRcSES7s+0=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"smallfishzzz.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.12.2","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="linux内核基础">
+<meta property="og:type" content="article">
+<meta property="og:title" content="kernel-base">
+<meta property="og:url" content="https://smallfishzzz.github.io/2022/07/22/kernel-base/index.html">
+<meta property="og:site_name" content="Small fish">
+<meta property="og:description" content="linux内核基础">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-07-22T06:41:12.000Z">
+<meta property="article:modified_time" content="2022-07-27T06:28:16.498Z">
+<meta property="article:author" content="ysj">
+<meta property="article:tag" content="linux内核">
+<meta property="article:tag" content="spinlock">
+<meta property="article:tag" content="信号量">
+<meta property="article:tag" content="metux">
+<meta property="article:tag" content="RCU">
+<meta property="article:tag" content="栈">
+<meta property="article:tag" content="内核同步机制">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://smallfishzzz.github.io/2022/07/22/kernel-base/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://smallfishzzz.github.io/2022/07/22/kernel-base/","path":"2022/07/22/kernel-base/","title":"kernel-base"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>kernel-base | Small fish</title>
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Small fish</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">已有知识,后必再有; 已学知识,后必再学</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">19</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">4</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">7</span></a></li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%86%85%E6%A0%B8%E5%90%8C%E6%AD%A5%E6%9C%BA%E5%88%B6"><span class="nav-number">1.</span> <span class="nav-text">内核同步机制</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#spinlock"><span class="nav-number">2.</span> <span class="nav-text">spinlock:</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1%EF%BC%89arm%E5%A4%84%E7%90%86%E5%99%A8%E4%B8%8A%EF%BC%8C%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E7%8B%AC%E5%8D%A0%E8%AE%BF%E9%97%AE%E5%86%85%E5%AD%98"><span class="nav-number">2.1.</span> <span class="nav-text">1）arm处理器上，如何实现独占访问内存</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3%EF%BC%89spinlock%E7%9A%84%E4%B8%B4%E7%95%8C%E5%8C%BA%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E8%83%BD%E7%9D%A1%E7%9C%A0"><span class="nav-number">2.2.</span> <span class="nav-text">3）spinlock的临界区为什么不能睡眠</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4%EF%BC%89spinlock%E7%9A%84%E4%B8%B4%E7%95%8C%E5%8C%BA%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E5%85%81%E8%AE%B8%E5%8F%91%E7%94%9F%E6%8A%A2%E5%8D%A0"><span class="nav-number">2.3.</span> <span class="nav-text">4）spinlock的临界区为什么不允许发生抢占</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5%EF%BC%89spinlock%E5%AE%9E%E7%8E%B0%E6%9C%89%E4%BB%80%E4%B9%88%E7%BC%BA%E7%82%B9"><span class="nav-number">2.4.</span> <span class="nav-text">5）spinlock实现有什么缺点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6%EF%BC%89spinlock-x2F-spinunlock%E7%9A%84%E4%B8%B4%E7%95%8C%E5%8C%BA%E4%B8%AD%E5%8F%91%E7%94%9F%E4%BA%86%E4%B8%AD%E6%96%AD%EF%BC%8C%E5%B9%B6%E4%B8%94%E4%B8%AD%E6%96%AD%E7%A8%8B%E5%BA%8F%E4%B8%AD%E4%B9%9F%E4%BF%AE%E6%94%B9%E4%BA%86%E8%AF%A5%E4%B8%B4%E7%95%8C%E8%B5%84%E6%BA%90%EF%BC%8C%E4%BC%9A%E5%8F%91%E7%94%9F%E4%BB%80%E4%B9%88%E5%90%8E%E6%9E%9C%EF%BC%8C%E8%AF%A5%E5%A6%82%E4%BD%95%E9%81%BF%E5%85%8D%E8%BF%99%E7%A7%8D%E6%83%85%E5%86%B5"><span class="nav-number">2.5.</span> <span class="nav-text">6）spinlock&#x2F;spinunlock的临界区中发生了中断，并且中断程序中也修改了该临界资源，会发生什么后果，该如何避免这种情况</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BF%A1%E5%8F%B7%E9%87%8F%EF%BC%9A"><span class="nav-number">3.</span> <span class="nav-text">信号量：</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#mutex"><span class="nav-number">4.</span> <span class="nav-text">mutex:</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#RCU"><span class="nav-number">5.</span> <span class="nav-text">RCU:</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%94%A8%E6%88%B7%E6%A0%88%EF%BC%8C%E5%86%85%E6%A0%B8%E6%A0%88%EF%BC%8C%E4%B8%AD%E6%96%AD%E6%A0%88"><span class="nav-number">6.</span> <span class="nav-text">用户栈，内核栈，中断栈</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B1%87%E6%80%BB%EF%BC%9A"><span class="nav-number">7.</span> <span class="nav-text">汇总：</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">ysj</p>
+  <div class="site-description" itemprop="description">一个打工仔</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">7</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/smallfishzzz" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;smallfishzzz" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
+  <div class="cc-license site-overview-item animated" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="https://cdnjs.cloudflare.com/ajax/libs/creativecommons-vocabulary/2020.11.3/assets/license_badges/small/by_nc_sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://smallfishzzz.github.io/2022/07/22/kernel-base/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="ysj">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Small fish">
+      <meta itemprop="description" content="一个打工仔">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="kernel-base | Small fish">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          kernel-base
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2022-07-22 14:41:12" itemprop="dateCreated datePublished" datetime="2022-07-22T14:41:12+08:00">2022-07-22</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2022-07-27 14:28:16" itemprop="dateModified" datetime="2022-07-27T14:28:16+08:00">2022-07-27</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/linux-%E5%86%85%E6%A0%B8%E5%9F%BA%E7%A1%80/" itemprop="url" rel="index"><span itemprop="name">linux 内核基础</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>linux内核基础</p>
+<span id="more"></span>
+
+
+
+<h1 id="内核同步机制"><a href="#内核同步机制" class="headerlink" title="内核同步机制"></a>内核同步机制</h1><p>内核同步机制有以下几种：</p>
+<p>一、 原子操作</p>
+<p>​	保证一个变量的原子性，范围小，实现简单。 通常用于引用计数  (xxx-&gt;count)</p>
+<p>二、 Per-CPU 变量</p>
+<p>​	避免竞争，以空间换时间，每个cpu对变量存一份副本，访问的时候都是本地的值，完全不同步。(cpu_rq)</p>
+<p>三、 memory barrier</p>
+<pre><code> 并发的时候防止cpu 指令处理顺序发生改变
+</code></pre>
+<p>四、 spin lock</p>
+<p>​	自旋锁，不会睡眠，一直死磕cpu， 不适合长时间占用</p>
+<p>五、Read&#x2F;Write spin lock</p>
+<p>​	</p>
+<p>六、 Seqlock</p>
+<p>七、 RCU</p>
+<p>八、mutex</p>
+<p>九、Queued spinlock</p>
+<h1 id="spinlock"><a href="#spinlock" class="headerlink" title="spinlock:"></a>spinlock:</h1><h2 id="1）arm处理器上，如何实现独占访问内存"><a href="#1）arm处理器上，如何实现独占访问内存" class="headerlink" title="1）arm处理器上，如何实现独占访问内存"></a>1）arm处理器上，如何实现独占访问内存</h2><p>LDREX用来读取内存中的值，并标记对该段内存的独占访问, 而STREX在更新内存数值时，会检查该段内存是否已经被标记为独占访问，并以此来决定是否更新内存中的值</p>
+<h2 id="3）spinlock的临界区为什么不能睡眠"><a href="#3）spinlock的临界区为什么不能睡眠" class="headerlink" title="3）spinlock的临界区为什么不能睡眠"></a>3）spinlock的临界区为什么不能睡眠</h2><p>因为spinlock不能睡眠可以解决中断中锁资源的问题。</p>
+<p>中断中不能睡眠的原因：</p>
+<p>设计原因：中断就是需要最快的处理事件，所以不应该被休眠。</p>
+<p>软件原因：</p>
+<p>中断中睡眠真的会死机吗？会触发异常，最终是否触发panic有panic_on_warn判断</p>
+<p>spinlock中睡眠会死机吗？</p>
+<p>如果是非抢占的不会</p>
+<p>如果是抢占内核的会，和中断睡眠流程一致</p>
+<h2 id="4）spinlock的临界区为什么不允许发生抢占"><a href="#4）spinlock的临界区为什么不允许发生抢占" class="headerlink" title="4）spinlock的临界区为什么不允许发生抢占"></a>4）spinlock的临界区为什么不允许发生抢占</h2><p>如果发生了抢占</p>
+<p>a) 持有锁的进程进入休眠，违背了spinlock锁不能睡眠</p>
+<p>b) 抢占的进程也可能会申请spinlock，导致死锁</p>
+<h2 id="5）spinlock实现有什么缺点"><a href="#5）spinlock实现有什么缺点" class="headerlink" title="5）spinlock实现有什么缺点"></a>5）spinlock实现有什么缺点</h2><p>a)  spinlock 会一直耗cpu， 不适合长时间占用</p>
+<p>b) 由于内存性能问题，多进程获取锁的时候，远端node上的进程大概率抢不过近端node的进程</p>
+<h2 id="6）spinlock-x2F-spinunlock的临界区中发生了中断，并且中断程序中也修改了该临界资源，会发生什么后果，该如何避免这种情况"><a href="#6）spinlock-x2F-spinunlock的临界区中发生了中断，并且中断程序中也修改了该临界资源，会发生什么后果，该如何避免这种情况" class="headerlink" title="6）spinlock&#x2F;spinunlock的临界区中发生了中断，并且中断程序中也修改了该临界资源，会发生什么后果，该如何避免这种情况"></a>6）spinlock&#x2F;spinunlock的临界区中发生了中断，并且中断程序中也修改了该临界资源，会发生什么后果，该如何避免这种情况</h2><p>a)死锁</p>
+<p>b)使用spin_lock_irq关闭本地中断，即可避免发生死锁问题。不需要关闭其他cpu中断不会导致死锁，因为CPU0上正在处理会很快退出，这样CPU1的中断处理函数就可以很快拿到锁了。</p>
+<p>c)spin_lock_irqsave的作用是用来保存当前cpu的中断状态</p>
+<p>比如CPU0当前中断状态是关闭的</p>
+<p>如果调用spin_lock_irq就会先关闭中断，然后unlock时又打开了中断，导致CPU0中断状态被打开。</p>
+<p>所以有了spin_lock_irqsave,lock时保存当前状态，unlock后会将当前状态恢复。</p>
+<hr>
+<h1 id="信号量："><a href="#信号量：" class="headerlink" title="信号量："></a>信号量：</h1><p>1）和spinlock对比，信号量的特点<br>2）简诉信号量的实现<br>3）读写信号量的使用判断</p>
+<hr>
+<h1 id="mutex"><a href="#mutex" class="headerlink" title="mutex:"></a>mutex:</h1><p>1）有信号量为什么还需要mutex<br>2）如何选择mutex和信号量</p>
+<hr>
+<h1 id="RCU"><a href="#RCU" class="headerlink" title="RCU:"></a>RCU:</h1><p>1)基本原理</p>
+<hr>
+<h1 id="用户栈，内核栈，中断栈"><a href="#用户栈，内核栈，中断栈" class="headerlink" title="用户栈，内核栈，中断栈"></a>用户栈，内核栈，中断栈</h1><p>用户栈的大小:   用户进程在执行的时候 ，初始大小是由编译器和链接器计算出来的,此时栈的也不是固定的, 内核会根据栈的情况(出栈入栈)对栈进行动态增长,当前也有最大限制(RLIMIT_STACK (一般为 8M)<br>), 如果增长到了8M,就会栈溢出, 触发段错误.<br>用户栈的存放位置: 存在于进程的虚拟地址空间里<br>创建时间:进程fork的时候生成的</p>
+<p>内核栈的大小:进程内核栈在进程创建的时候, 通过slab分配出来,大小为THREAD_SIZE, 一般为4K.<br>存放位置:由于是通过slab分配的,存在于内核的地址空间里<br>Tips:当前进程的task_struct指针存储在进程内核栈里,通过SP_EL0可以获取到</p>
+<p>中断栈:<br>X86上中断栈独立于内核栈, 中断栈上内存的分配发生于中断初始化函数中, 函数使用_alloc_pages配置两个页,也就是8K用于中断栈<br>ARM上中断栈与内核栈共享, 所以如果发生中断嵌套,容易发生栈溢出.<br>ARM64上中断栈也是在中断初始化时单独申请的,一般是通过申请percpu变量,每个cpu申请THREAD_SIZE大小,也就是4kb</p>
+<p>1）大小<br>2）存放位置<br>3）如何切换</p>
+<hr>
+<h1 id="汇总："><a href="#汇总：" class="headerlink" title="汇总："></a>汇总：</h1><p>1）原子操作，spinlock,信号量，读写信号量，mutex,rcu等锁的特点和使用规则<br>2）KSM扫描某个VMA寻找有效匿名页，假设此VMA恰巧被其他cpu销毁了，会不会有问题<br>3）页锁PG_lock的常用使用方法<br>4）mm&#x2F;mmap.c文件中page_get_anon_vma函数中，为什么要使用rcu_read_lock,什么时候注册RCU回调<br>5）mm&#x2F;oom_kill.c文件中select_bad_process函数中，为什么要使用rcu_read_lock,什么时候注册RCU回调</p>
+<p>参考:</p>
+<p><a target="_blank" rel="noopener" href="http://www.wowotech.net/">http://www.wowotech.net/</a></p>
+<p>栈：</p>
+<p><a target="_blank" rel="noopener" href="https://www.tiehichi.site/2020/10/22/Linux%E8%BF%9B%E7%A8%8B%E6%A0%88%E7%A9%BA%E9%97%B4%E5%A4%A7%E5%B0%8F/">https://www.tiehichi.site/2020/10/22/Linux%E8%BF%9B%E7%A8%8B%E6%A0%88%E7%A9%BA%E9%97%B4%E5%A4%A7%E5%B0%8F/</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>疯狂暗示</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/true" alt="ysj enable">
+        <span>enable</span>
+      </div>
+      <div>
+        <img src="/%E7%96%AF%E7%8B%82%E6%9A%97%E7%A4%BA" alt="ysj comment">
+        <span>comment</span>
+      </div>
+      <div>
+        <img src="/images/wechatpay.png" alt="ysj 微信">
+        <span>微信</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/linux%E5%86%85%E6%A0%B8/" rel="tag"># linux内核</a>
+              <a href="/tags/spinlock/" rel="tag"># spinlock</a>
+              <a href="/tags/%E4%BF%A1%E5%8F%B7%E9%87%8F/" rel="tag"># 信号量</a>
+              <a href="/tags/metux/" rel="tag"># metux</a>
+              <a href="/tags/RCU/" rel="tag"># RCU</a>
+              <a href="/tags/%E6%A0%88/" rel="tag"># 栈</a>
+              <a href="/tags/%E5%86%85%E6%A0%B8%E5%90%8C%E6%AD%A5%E6%9C%BA%E5%88%B6/" rel="tag"># 内核同步机制</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/07/21/task-summary/" rel="prev" title="进程总结">
+                  <i class="fa fa-chevron-left"></i> 进程总结
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Small fish</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">false</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"model":{"jsonPath":"/live2dw/assets/shizuku.model.json"},"display":{"position":"right","width":300,"height":600},"mobile":{"show":false},"log":false});</script></body>
+</html>
